@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Modelos grandes (usar Git LFS si > 100 MB)
+# models/*.pkl  # Descomenta si los .pkl son muy grandes
+
+# Datos sensibles o pesados
+data/raw/*.csv
+data/raw/*.zip
+data/raw/*.gz
+
+# Entornos virtuales
+.env
+.env.local
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Streamlit
+.streamlit/secrets.toml
