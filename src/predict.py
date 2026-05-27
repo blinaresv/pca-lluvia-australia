@@ -42,12 +42,12 @@ def predict(input_array: np.ndarray, scaler, pca, classifier) -> dict:
     Returns
     -------
     dict con:
-        - 'label'       : str ('Benigno' | 'Maligno')
-        - 'class'       : int (0 | 1)
-        - 'probability' : float (probabilidad de la clase predicha)
-        - 'prob_benign' : float
-        - 'prob_malign' : float
-        - 'pca_components': int (número de componentes utilizados)
+        - 'label'            : str ('Sin lluvia' | 'Lluvia')
+        - 'class'            : int (0 | 1)
+        - 'probability'      : float (probabilidad de la clase predicha)
+        - 'prob_no_rain'     : float
+        - 'prob_rain'        : float
+        - 'pca_components'   : int (número de componentes utilizados)
         - 'variance_explained': float (% varianza explicada)
     """
     # 1. Estandarizar
@@ -57,18 +57,18 @@ def predict(input_array: np.ndarray, scaler, pca, classifier) -> dict:
     X_pca = pca.transform(X_scaled)
 
     # 3. Predicción
-    prediction   = int(classifier.predict(X_pca)[0])
+    prediction    = int(classifier.predict(X_pca)[0])
     probabilities = classifier.predict_proba(X_pca)[0]
 
-    label = 'Maligno' if prediction == 1 else 'Benigno'
+    label = 'Lluvia' if prediction == 1 else 'Sin lluvia'
     prob  = float(probabilities[prediction])
 
     return {
-        'label':             label,
-        'class':             prediction,
-        'probability':       prob,
-        'prob_benign':       float(probabilities[0]),
-        'prob_malign':       float(probabilities[1]),
-        'pca_components':    int(pca.n_components_),
+        'label':              label,
+        'class':              prediction,
+        'probability':        prob,
+        'prob_no_rain':       float(probabilities[0]),
+        'prob_rain':          float(probabilities[1]),
+        'pca_components':     int(pca.n_components_),
         'variance_explained': float(sum(pca.explained_variance_ratio_) * 100),
     }

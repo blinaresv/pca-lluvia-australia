@@ -6,9 +6,9 @@ Predice si lloverá mañana en Australia a partir de mediciones meteorológicas 
 
 ## Demo en vivo
 
-**[Abrir aplicación](https://TU-APP.streamlit.app)** ← reemplaza con tu URL de Streamlit Cloud
+**[Abrir aplicación](https://pca-lluvia-australia.streamlit.app)** ← actualiza con tu URL tras el despliegue
 
-**Repositorio:** [github.com/TU-USUARIO/rain-australia-pca](https://github.com/TU-USUARIO/rain-australia-pca) ← reemplaza con tu URL
+**Repositorio:** [github.com/blinaresv/pca-lluvia-australia](https://github.com/blinaresv/pca-lluvia-australia)
 
 ---
 
@@ -100,8 +100,8 @@ kaggle datasets download -d jsphyg/weather-dataset-rattle-package -p data/raw/ -
 Requiere Python 3.11+ y pip.
 
 ```bash
-git clone https://github.com/TU-USUARIO/rain-australia-pca.git
-cd rain-australia-pca
+git clone https://github.com/blinaresv/pca-lluvia-australia.git
+cd pca-lluvia-australia
 
 python -m venv venv
 source venv/bin/activate      # Linux / macOS
