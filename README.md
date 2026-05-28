@@ -38,11 +38,13 @@ Por qué tiene sentido aquí: `Temp9am` y `Temp3pm` miden prácticamente lo mism
 
 | Métrica | Valor |
 |---|---|
-| Accuracy | ejecutar notebook para ver |
-| Precision | ejecutar notebook para ver |
-| Recall | ejecutar notebook para ver |
-| F1-Score | ejecutar notebook para ver |
-| ROC-AUC | ejecutar notebook para ver |
+| Accuracy | 76.97% |
+| Precision | 49.12% |
+| Recall | 76.27% |
+| F1-Score | 59.75% |
+| ROC-AUC | 0.8492 |
+
+> El ROC-AUC de 0.849 indica buena discriminación entre clases. El Recall alto (76%) es deseable en predicción meteorológica: es preferible avisar que puede llover aunque algunas veces sea falsa alarma, antes que no avisar y fallar. La Precision baja refleja el desbalance de clases (77% días sin lluvia). PCA redujo de 17 features a 11 componentes preservando el 95.18% de la varianza.
 
 ---
 
