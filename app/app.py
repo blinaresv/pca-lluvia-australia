@@ -1,5 +1,5 @@
 """
-app.py — Predictor de Lluvia en Australia con PCA + Regresión Logística
+app.py — Predictor de lluvia en Australia con PCA + Regresión logística
 Inteligencia Artificial I — Actividad 3
 """
 
@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 # Configuración
 # ─────────────────────────────────────────────
 st.set_page_config(
-    page_title="Predictor de Lluvia — Australia",
+    page_title="Predictor de lluvia — Australia",
     page_icon="🌧️",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -55,18 +55,18 @@ try:
     models_ok = True
 except Exception as e:
     models_ok = False
-    st.error(f"❌ Error al cargar modelos: {e}. Ejecuta primero `notebooks/01_training.ipynb`.")
+    st.error(f"Error al cargar modelos: {e}. Ejecuta primero notebooks/01_training.ipynb.")
 
 # ─────────────────────────────────────────────
 # Sidebar
 # ─────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("### 🌏 Acerca del Modelo")
+    st.markdown("### Acerca del modelo")
     st.info("""
-**Algoritmo:** PCA + Regresión Logística
+**Algoritmo:** PCA + Regresión logística
 
 **Dataset:** Rain in Australia (Kaggle)
-- 145,000+ observaciones
+- 145 000+ observaciones
 - 49 estaciones meteorológicas
 - 10 años de datos diarios
 
@@ -77,15 +77,15 @@ with st.sidebar:
 """)
 
     if models_ok:
-        st.markdown("### 📊 Métricas del Modelo")
+        st.markdown("### Métricas del modelo")
         st.success("""
 Las métricas reales aparecen aquí después de correr el notebook.
 """)
 
-        st.markdown("### 🔄 Reducción PCA")
+        st.markdown("### Reducción PCA")
         if hasattr(pca, 'n_components_'):
             st.success(f"""
-- Features entrada: {len(feature_names)}
+- Variables de entrada: {len(feature_names)}
 - Componentes PCA: {pca.n_components_}
 - Varianza explicada: {sum(pca.explained_variance_ratio_)*100:.1f}%
 """)
@@ -93,14 +93,14 @@ Las métricas reales aparecen aquí después de correr el notebook.
     st.markdown("---")
     st.markdown("""
 <div class='warn-box'>
-⚠️ <b>Aviso:</b> Herramienta académica. No reemplaza sistemas meteorológicos profesionales.
+<b>Aviso:</b> Herramienta académica. No reemplaza sistemas meteorológicos profesionales.
 </div>
 """, unsafe_allow_html=True)
 
 # ─────────────────────────────────────────────
 # Contenido principal
 # ─────────────────────────────────────────────
-st.markdown("<div class='main-title'>🌧️ Predictor de Lluvia en Australia</div>", unsafe_allow_html=True)
+st.markdown("<div class='main-title'>Predictor de lluvia en Australia</div>", unsafe_allow_html=True)
 st.markdown("<div class='subtitle'>PCA como preprocesamiento para clasificación — ¿Lloverá mañana?</div>", unsafe_allow_html=True)
 st.markdown("---")
 
@@ -128,13 +128,13 @@ EXAMPLES = {
 # ─────────────────────────────────────────────
 # Modo de entrada
 # ─────────────────────────────────────────────
-st.markdown("## 🌡️ Condiciones Meteorológicas Actuales")
+st.markdown("## Condiciones meteorológicas actuales")
 
-mode = st.radio("Modo de entrada:", ["✏️ Ingresar manualmente", "📌 Usar caso de ejemplo"],
+mode = st.radio("Modo de entrada:", ["Ingresar manualmente", "Usar caso de ejemplo"],
                 horizontal=True)
 
 example_values = None
-if "📌 Usar caso de ejemplo" in mode:
+if "Usar caso de ejemplo" in mode:
     choice = st.selectbox("Selecciona un caso:", list(EXAMPLES.keys()))
     example_values = EXAMPLES[choice]
     st.info(f"Cargando: **{choice}**")
@@ -149,7 +149,7 @@ def get_val(feat):
 
 inputs = {}
 
-tab1, tab2, tab3 = st.tabs(["🌡️ Temperatura y Lluvia", "💨 Viento y Presión", "☁️ Humedad y Nubosidad"])
+tab1, tab2, tab3 = st.tabs(["Temperatura y lluvia", "Viento y presión", "Humedad y nubosidad"])
 
 with tab1:
     c1, c2 = st.columns(2)
@@ -209,23 +209,21 @@ with tab3:
 # Botón de predicción
 # ─────────────────────────────────────────────
 st.markdown("---")
-predict_btn = st.button("🌦️ Predecir si lloverá mañana", type="primary", use_container_width=True)
+predict_btn = st.button("Predecir si lloverá mañana", type="primary", use_container_width=True)
 
 if predict_btn:
-    # Asegurar que todas las features estén presentes con el orden correcto
     input_row = pd.DataFrame([inputs], columns=feature_names)
 
-    # Pipeline
-    X_scaled     = scaler.transform(input_row)
-    X_pca        = pca.transform(X_scaled)
-    prediction   = int(classifier.predict(X_pca)[0])
+    X_scaled      = scaler.transform(input_row)
+    X_pca         = pca.transform(X_scaled)
+    prediction    = int(classifier.predict(X_pca)[0])
     probabilities = classifier.predict_proba(X_pca)[0]
 
     prob_yes = float(probabilities[1])
     prob_no  = float(probabilities[0])
 
     st.markdown("---")
-    st.markdown("## 🎯 Predicción para Mañana")
+    st.markdown("## Predicción para mañana")
 
     col_res, col_chart, col_pca = st.columns([1.2, 1, 1])
 
@@ -233,15 +231,15 @@ if predict_btn:
         if prediction == 1:
             st.markdown(f"""
 <div class='result-yes'>
-<h2 style='color:#004085;margin:0'>🌧️ LLOVERÁ</h2>
+<h2 style='color:#004085;margin:0'>Lloverá</h2>
 <h3 style='color:#004085;margin:5px 0'>Probabilidad: {prob_yes*100:.1f}%</h3>
-<p style='color:#004085;margin-top:10px'>Se esperan precipitaciones mañana. Llevar paraguas.</p>
+<p style='color:#004085;margin-top:10px'>Se esperan precipitaciones mañana.</p>
 </div>
 """, unsafe_allow_html=True)
         else:
             st.markdown(f"""
 <div class='result-no'>
-<h2 style='color:#155724;margin:0'>☀️ NO LLOVERÁ</h2>
+<h2 style='color:#155724;margin:0'>No lloverá</h2>
 <h3 style='color:#155724;margin:5px 0'>Probabilidad: {prob_no*100:.1f}%</h3>
 <p style='color:#155724;margin-top:10px'>Se espera un día sin lluvia mañana.</p>
 </div>
@@ -264,14 +262,14 @@ if predict_btn:
         plt.close()
 
     with col_pca:
-        st.markdown("#### 🔄 Reducción PCA")
+        st.markdown("#### Reducción PCA")
         st.info(f"""
-Features entrada: **{len(feature_names)}**
+Variables de entrada: **{len(feature_names)}**
 Componentes PCA: **{pca.n_components_}**
 Varianza preservada: **{sum(pca.explained_variance_ratio_)*100:.1f}%**
-Reducción: {len(feature_names)} → {pca.n_components_} dims
+Reducción: {len(feature_names)} → {pca.n_components_} dimensiones
 """)
-        st.markdown("#### 📌 PC1 — principales aportes")
+        st.markdown("#### PC1 — variables con más peso")
         loadings = pd.DataFrame(
             pca.components_.T,
             index=[f.replace('_', ' ') for f in feature_names],
@@ -279,13 +277,12 @@ Reducción: {len(feature_names)} → {pca.n_components_} dims
         )
         top3 = loadings['PC1'].abs().nlargest(3)
         for feat, val in top3.items():
-            dir_ = "↑" if loadings.loc[feat, 'PC1'] > 0 else "↓"
+            dir_ = "+" if loadings.loc[feat, 'PC1'] > 0 else "-"
             st.write(f"**{feat}** {dir_} ({val:.3f})")
 
-    # Gráfico de posición en espacio PCA
     st.markdown("---")
-    st.markdown("### 📊 Posición en el espacio PCA")
-    st.caption("La estrella indica dónde cae tu observación respecto a los patrones históricos.")
+    st.markdown("### Posición en el espacio PCA")
+    st.caption("La estrella indica dónde cae esta observación respecto a los patrones históricos.")
 
     np.random.seed(42)
     n = 100
@@ -302,11 +299,11 @@ Reducción: {len(feature_names)} → {pca.n_components_} dims
     pc2_s = float(X_pca[0, 1])
     color_s = '#0056b3' if prediction == 1 else '#28a745'
     ax2.scatter(pc1_s, pc2_s, c=color_s, s=350, marker='*',
-                edgecolors='black', linewidths=1.5, zorder=5, label='Tu observación')
+                edgecolors='black', linewidths=1.5, zorder=5, label='Esta observación')
 
     ax2.set_xlabel(f'PC1 ({pca.explained_variance_ratio_[0]*100:.1f}% varianza)', fontsize=11)
     ax2.set_ylabel(f'PC2 ({pca.explained_variance_ratio_[1]*100:.1f}% varianza)', fontsize=11)
-    ax2.set_title('Observación en el Espacio PCA', fontsize=13, fontweight='bold')
+    ax2.set_title('Observación en el espacio PCA', fontsize=13, fontweight='bold')
     ax2.legend(fontsize=10)
     ax2.grid(True, alpha=0.3)
     plt.tight_layout()
@@ -319,7 +316,7 @@ Reducción: {len(feature_names)} → {pca.n_components_} dims
 st.markdown("---")
 st.markdown("""
 <div style='text-align:center;color:#888;font-size:0.8rem;padding:10px 0'>
-🎓 Inteligencia Artificial I — Actividad 3 | Fundación Universitaria Los Libertadores<br>
+Inteligencia Artificial I — Actividad 3 | Fundación Universitaria Los Libertadores<br>
 Algoritmo: PCA como preprocesamiento para clasificación<br>
 Dataset: <a href='https://www.kaggle.com/datasets/jsphyg/weather-dataset-rattle-package' target='_blank'>
 Rain in Australia — Kaggle</a>
