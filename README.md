@@ -191,9 +191,9 @@ La app tiene tres pestañas de entrada (Temperatura y Lluvia, Viento y Presión,
 
 ## Autores
 
-- **Integrante 1** — modelo y notebook
-- **Integrante 2** — app web y despliegue
-- **Integrante 3** — documentación y presentación
+- **Ariza Vargas Sariaht Eyleen Xiomara** — modelo y notebook
+- **Carreño Medina Adriana Lucia** — app web y despliegue
+- **Linares Viasus Brandon Felipe** — documentación y presentación
 
 *Fundación Universitaria Los Libertadores — Inteligencia Artificial I, 2024*
 
