@@ -246,17 +246,19 @@ if predict_btn:
 """, unsafe_allow_html=True)
 
     with col_chart:
+        SET2 = ["#66C2A5", "#FC8D62"]
         fig, ax = plt.subplots(figsize=(5, 4))
         ax.bar(['No lluvia', 'Lluvia'], [prob_no*100, prob_yes*100],
-               color=['#28a745', '#0056b3'], edgecolor='black', alpha=0.85)
+               color=[SET2[0], SET2[1]], edgecolor='white', alpha=0.88)
         for i, v in enumerate([prob_no*100, prob_yes*100]):
             ax.text(i, v + 1, f'{v:.1f}%', ha='center', va='bottom', fontweight='bold', fontsize=13)
-        ax.set_ylabel('Probabilidad (%)')
-        ax.set_title('Probabilidades', fontweight='bold')
+        ax.set_xlabel('Clase', fontsize=11)
+        ax.set_ylabel('Probabilidad (%)', fontsize=11)
+        ax.set_title('Probabilidad predicha por clase (%)', fontsize=12, fontweight='bold')
         ax.set_ylim(0, 118)
         ax.grid(axis='y', alpha=0.3)
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
+        ax.spines[["top", "right"]].set_visible(False)
+        ax.tick_params(labelsize=10)
         plt.tight_layout()
         st.pyplot(fig, use_container_width=True)
         plt.close()
@@ -289,24 +291,29 @@ Reducción: {len(feature_names)} → {pca.n_components_} dimensiones
     pc_dry  = np.random.multivariate_normal([-2.0, 0.8], [[2.0, 0.3],[0.3, 1.0]], n)
     pc_rain = np.random.multivariate_normal([2.5, -0.5], [[1.8, 0.4],[0.4, 1.2]], n)
 
+    SET2 = ["#66C2A5", "#FC8D62", "#8DA0CB"]
     fig2, ax2 = plt.subplots(figsize=(8, 5))
-    ax2.scatter(pc_dry[:,0], pc_dry[:,1], c='#28a745', alpha=0.4,
+    ax2.scatter(pc_dry[:,0], pc_dry[:,1], c=SET2[0], alpha=0.4,
                 label='Sin lluvia (referencia)', s=35, edgecolors='none')
-    ax2.scatter(pc_rain[:,0], pc_rain[:,1], c='#0056b3', alpha=0.4,
+    ax2.scatter(pc_rain[:,0], pc_rain[:,1], c=SET2[1], alpha=0.4,
                 label='Con lluvia (referencia)', s=35, edgecolors='none')
 
     pc1_s = float(X_pca[0, 0])
     pc2_s = float(X_pca[0, 1])
-    color_s = '#0056b3' if prediction == 1 else '#28a745'
+    color_s = SET2[1] if prediction == 1 else SET2[0]
     ax2.scatter(pc1_s, pc2_s, c=color_s, s=350, marker='*',
                 edgecolors='black', linewidths=1.5, zorder=5, label='Esta observación')
 
     ax2.set_xlabel(f'PC1 ({pca.explained_variance_ratio_[0]*100:.1f}% varianza)', fontsize=11)
     ax2.set_ylabel(f'PC2 ({pca.explained_variance_ratio_[1]*100:.1f}% varianza)', fontsize=11)
-    ax2.set_title('Observación en el espacio PCA', fontsize=13, fontweight='bold')
-    ax2.legend(fontsize=10)
-    ax2.grid(True, alpha=0.3)
-    plt.tight_layout()
+    ax2.set_title('Observación en el espacio PCA', fontsize=12, fontweight='bold')
+    ax2.legend(fontsize=9, framealpha=0.9,
+               bbox_to_anchor=(1.01, 1), loc='upper left', borderaxespad=0)
+    ax2.grid(False)
+    ax2.set_facecolor("white")
+    ax2.spines[["top", "right"]].set_visible(False)
+    ax2.tick_params(labelsize=10)
+    plt.tight_layout(rect=[0, 0, 0.82, 1])
     st.pyplot(fig2, use_container_width=True)
     plt.close()
 
