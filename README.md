@@ -6,7 +6,7 @@ Predice si lloverá mañana en Australia a partir de mediciones meteorológicas 
 
 ## Demo en vivo
 
-**[Abrir aplicación](https://pca-lluvia-australia.streamlit.app)** ← actualiza con tu URL tras el despliegue
+**[Abrir aplicación](https://pca-lluvia-australiagit-me6beprsvy7wgcnfkgnbsa.streamlit.app)**
 
 **Repositorio:** [github.com/blinaresv/pca-lluvia-australia](https://github.com/blinaresv/pca-lluvia-australia)
 
