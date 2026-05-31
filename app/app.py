@@ -25,6 +25,7 @@ st.set_page_config(
 # ── CSS ───────────────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
+<<<<<<< Updated upstream
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
 html, body, [class*="css"] { font-family: 'Outfit', sans-serif; }
@@ -37,13 +38,128 @@ html, body, [class*="css"] { font-family: 'Outfit', sans-serif; }
 /* Sidebar */
 [data-testid="stSidebar"] {
     background: #0F2B5B;
+=======
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
+.stApp { background: #EBF5FF; }
+
+/* ── Sidebar ── */
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #03045E 0%, #023E8A 100%);
+>>>>>>> Stashed changes
     border-right: none;
+    box-shadow: 4px 0 20px rgba(0,119,182,0.25);
 }
+<<<<<<< Updated upstream
 [data-testid="stSidebar"] * { color: #B8CCE8 !important; }
 [data-testid="stSidebar"] strong,
 [data-testid="stSidebar"] h2,
 [data-testid="stSidebar"] h3 { color: #FFFFFF !important; }
 [data-testid="stSidebar"] hr { border-color: #1E3F6F !important; }
+=======
+[data-testid="stSidebar"] * { color: #CAF0F8 !important; }
+[data-testid="stSidebar"] h2,
+[data-testid="stSidebar"] h3 {
+    color: #90E0EF !important; font-size: 13px !important;
+    text-transform: uppercase; letter-spacing: .09em;
+}
+[data-testid="stSidebar"] hr { border-color: #0077B6 !important; }
+
+/* Botón visible para reabrir sidebar cuando está colapsado */
+[data-testid="collapsedControl"] {
+    background: linear-gradient(180deg, #0077B6, #00B4D8) !important;
+    border-radius: 0 12px 12px 0 !important;
+    box-shadow: 3px 0 16px rgba(0,180,216,0.5) !important;
+    padding: 10px 5px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+}
+[data-testid="collapsedControl"] button {
+    color: white !important;
+}
+[data-testid="collapsedControl"] svg {
+    fill: white !important;
+    stroke: white !important;
+}
+
+/* ── Hero ── */
+.hero-banner {
+    position: relative; border-radius: 16px; overflow: hidden;
+    height: 175px; margin-bottom: 1.4rem;
+    background: linear-gradient(120deg, #03045E 0%, #0077B6 60%, #00B4D8 100%);
+    display: flex; flex-direction: column; justify-content: center; padding: 0 2rem;
+    box-shadow: 0 6px 24px rgba(0,119,182,0.35);
+}
+.hero-banner::before {
+    content: ''; position: absolute; inset: 0;
+    background: url('https://images.unsplash.com/photo-1534274988757-a28bf1a57c17?w=1200&q=60') center/cover no-repeat;
+    opacity: .14;
+}
+.hero-banner * { position: relative; }
+.hero-title { font-size: 24px; font-weight: 800; color: #FFFFFF; margin: 0 0 5px; letter-spacing: -.3px; }
+.hero-sub   { font-size: 12px; color: #90E0EF; margin: 0; }
+
+/* ── Cards ── */
+.card {
+    background: #fff; border: 1px solid #BDE0FE;
+    border-radius: 14px; padding: 14px 16px;
+    box-shadow: 0 2px 10px rgba(0,119,182,0.08);
+}
+.metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; }
+.metric-box  {
+    background: linear-gradient(135deg, #E0F4FF, #CAF0F8);
+    border: 1px solid #90E0EF;
+    border-radius: 10px; padding: 8px 10px; text-align: center;
+}
+.metric-val { font-size: 16px; font-weight: 800; color: #0077B6; }
+.metric-lbl { font-size: 9px; color: #023E8A; text-transform: uppercase; letter-spacing: .07em; margin-top: 2px; }
+
+.sel-pill {
+    display: inline-block; font-size: 11px; padding: 3px 11px;
+    border-radius: 20px; background: #CAF0F8; color: #0077B6;
+    border: 1px solid #90E0EF; margin-right: 4px; font-weight: 600;
+}
+
+/* ── Weather cards ── */
+.w-card {
+    background: linear-gradient(135deg, #ffffff, #EBF5FF);
+    border: 1px solid #BDE0FE; border-radius: 12px; padding: 14px 16px;
+    box-shadow: 0 2px 12px rgba(0,119,182,0.1);
+}
+.w-val { font-size: 22px; font-weight: 800; color: #023E8A; }
+.w-lbl { font-size: 10px; color: #0077B6; margin-top: 4px; font-weight: 500; }
+
+/* ── Resultado ── */
+.result-rain {
+    background: linear-gradient(135deg, #03045E, #0077B6);
+    border: none; border-radius: 16px; padding: 1.6rem; text-align: center;
+    box-shadow: 0 6px 28px rgba(0,119,182,0.4);
+}
+.result-dry  {
+    background: linear-gradient(135deg, #1B4332, #2D6A4F);
+    border: none; border-radius: 16px; padding: 1.6rem; text-align: center;
+    box-shadow: 0 6px 28px rgba(27,67,50,0.4);
+}
+.result-label { font-size: 16px; font-weight: 700; margin-top: 6px; }
+.result-prob  { font-size: 34px; font-weight: 800; color: #FFFFFF; margin: 6px 0 4px; }
+.result-sub   { font-size: 11px; color: rgba(255,255,255,0.7); }
+
+.algo-tag {
+    display: inline-block; background: rgba(0,180,216,0.15); color: #00B4D8;
+    font-size: 10px; padding: 3px 10px; border-radius: 5px; margin-right: 4px;
+    font-family: monospace; border: 1px solid rgba(0,180,216,0.3);
+}
+
+.pca-stat-row { display: flex; gap: 8px; margin-top: 8px; }
+.pca-stat {
+    background: linear-gradient(135deg, #E0F4FF, #CAF0F8);
+    border: 1px solid #90E0EF;
+    border-radius: 10px; padding: 10px; text-align: center; flex: 1;
+}
+.pca-stat-v { font-size: 16px; font-weight: 800; color: #0077B6; }
+.pca-stat-l { font-size: 9px; color: #023E8A; text-transform: uppercase; letter-spacing: .06em; }
+>>>>>>> Stashed changes
 
 /* Ocultar toolbar */
 [data-testid="stToolbar"] { display: none; }
@@ -458,6 +574,7 @@ with st.sidebar:
 </div>""", unsafe_allow_html=True)
 
     st.divider()
+<<<<<<< Updated upstream
     st.markdown("<div style='font-size:10px;color:#3B6EA5;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;font-weight:600'>Métricas del modelo</div>", unsafe_allow_html=True)
 
     for v, l, tip in [
@@ -475,6 +592,35 @@ with st.sidebar:
 
     if models_ok:
         st.divider()
+=======
+    st.markdown("### 🤖 Modelo")
+    st.markdown("""
+<span class='algo-tag'>PCA</span>
+<span class='algo-tag'>LogisticRegression</span>
+<span class='algo-tag'>scikit-learn</span>
+""", unsafe_allow_html=True)
+
+    if models_ok:
+        st.divider()
+        st.markdown("### 📊 Métricas del modelo")
+        metrics = [("76.97%","Accuracy","De cada 100 dias, el modelo acierta en 77"),
+                   ("0.849","ROC-AUC","Discriminacion entre lluvia y no lluvia. 1=perfecto"),
+                   ("76.27%","Recall","De los dias que llovio, el modelo detecto el 76%"),
+                   ("59.75%","F1-Score","Balance entre precision y recall")]
+        cols = st.columns(2)
+        for i,(v,l,tip) in enumerate(metrics):
+            with cols[i%2]:
+                st.markdown(f"""
+<div class='metric-box' style='position:relative'>
+  <div class='metric-val'>{v}</div>
+  <div class='metric-lbl'>{l}</div>
+</div>
+""", unsafe_allow_html=True)
+                st.caption(tip)
+
+        st.divider()
+        st.markdown("### 🔬 Reducción de variables")
+>>>>>>> Stashed changes
         st.markdown(f"""
 <div class='sb-metric'>
   <div class='sb-val'>{len(feature_names)} <span style='color:#1E3F6F'>→</span> {pca.n_components_}</div>
@@ -547,6 +693,7 @@ if "reales" in mode:
         api_data = fetch_weather(selected)
 
     if api_data:
+<<<<<<< Updated upstream
         st.markdown(f"""
 <div class='weather-row'>
   <div class='w-card'>
@@ -568,6 +715,20 @@ if "reales" in mode:
 </div>
 """, unsafe_allow_html=True)
         inputs = {k: v for k, v in api_data.items() if not k.startswith("_")}
+=======
+        st.success(f"Datos obtenidos correctamente para **{selected}**")
+        c1,c2,c3,c4 = st.columns(4)
+        for col, icon, val, lbl in [
+            (c1, "🌡️", f"{api_data['Temp9am']:.1f} °C","Temperatura 9am"),
+            (c2, "💧", f"{api_data['Humidity3pm']:.0f} %","Humedad 3pm"),
+            (c3, "💨", f"{api_data['WindGustSpeed']:.0f} km/h","Rafaga viento"),
+            (c4, "🌧️", f"{api_data['Rainfall']:.1f} mm","Lluvia hoy"),
+        ]:
+            with col:
+                st.markdown(f"<div class='w-card'><div style='font-size:22px'>{icon}</div><div class='w-val'>{val}</div><div class='w-lbl'>{lbl}</div></div>", unsafe_allow_html=True)
+        st.write("")
+        inputs = {k:v for k,v in api_data.items() if not k.startswith("_")}
+>>>>>>> Stashed changes
     else:
         st.warning("No se pudo conectar con Open-Meteo. Cambia a modo manual.")
 
@@ -645,32 +806,58 @@ if predict_btn and inputs:
     with col_res:
         if pred == 1:
             st.markdown(f"""
+<<<<<<< Updated upstream
 <div class='result-card rain'>
   <div class='result-verdict rain'>Lluvia esperada mañana</div>
   <div class='result-pct rain'>{p_rain*100:.1f}%</div>
   <div style='font-size:12px;color:#0284C7'>probabilidad de precipitación</div>
   <div class='result-note'>
     El modelo detecta condiciones propicias.<br>
+=======
+<div class='result-rain'>
+  <div style='font-size:42px;line-height:1'>🌧️</div>
+  <div style='font-size:26px;font-weight:800;color:#FFFFFF;margin:8px 0 4px'>Lluvia esperada</div>
+  <div class='result-prob'>{p_rain*100:.1f}%</div>
+  <div class='result-sub'>probabilidad de lluvia mañana</div>
+  <div style='font-size:10px;color:rgba(255,255,255,0.65);margin-top:14px'>
+    El modelo detecta condiciones propicias para precipitaciones.<br>
+>>>>>>> Stashed changes
     Recall: 76.27% — captura la mayoría de días lluviosos.
   </div>
 </div>""", unsafe_allow_html=True)
         else:
             st.markdown(f"""
+<<<<<<< Updated upstream
 <div class='result-card dry'>
   <div class='result-verdict dry'>Día seco esperado</div>
   <div class='result-pct dry'>{p_dry*100:.1f}%</div>
   <div style='font-size:12px;color:#059669'>probabilidad de día sin lluvia</div>
   <div class='result-note'>
     Las condiciones actuales sugieren un día sin precipitaciones.<br>
+=======
+<div class='result-dry'>
+  <div style='font-size:42px;line-height:1'>☀️</div>
+  <div style='font-size:26px;font-weight:800;color:#FFFFFF;margin:8px 0 4px'>Dia seco esperado</div>
+  <div class='result-prob'>{p_dry*100:.1f}%</div>
+  <div class='result-sub'>probabilidad de dia sin lluvia</div>
+  <div style='font-size:10px;color:rgba(255,255,255,0.65);margin-top:14px'>
+    Las condiciones actuales sugieren un dia sin precipitaciones.<br>
+>>>>>>> Stashed changes
     Accuracy general: 76.97%.
   </div>
 </div>""", unsafe_allow_html=True)
 
     with col_chart:
         fig, ax = plt.subplots(figsize=(5.5, 4), facecolor="white")
+<<<<<<< Updated upstream
         ax.set_facecolor("#F8FAFC")
         bars = ax.bar(["Sin lluvia", "Con lluvia"], [p_dry*100, p_rain*100],
                       color=["#059669","#0284C7"], width=0.45, edgecolor="white")
+=======
+        ax.set_facecolor("white")
+        bars = ax.bar(["☀️ Sin lluvia","🌧️ Con lluvia"], [p_dry*100, p_rain*100],
+                      color=["#52B788","#0077B6"], width=0.45, edgecolor="white")
+>>>>>>> Stashed changes
         for bar, v in zip(bars, [p_dry*100, p_rain*100]):
             ax.text(bar.get_x()+bar.get_width()/2, v+1.5,
                     f"{v:.1f}%", ha="center", va="bottom",
