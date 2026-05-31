@@ -44,6 +44,28 @@ html, body, [class*="css"] {
 /* Ocultar toolbar matplotlib */
 [data-testid="stToolbar"] { display: none; }
 
+/* Todos los botones base — tema oscuro */
+.stButton > button {
+    background: #0F1923 !important;
+    border: 1px solid #1A2535 !important;
+    border-radius: 10px !important;
+    color: #94A3B8 !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    transition: all 0.18s !important;
+}
+.stButton > button:hover {
+    border-color: #EA580C !important;
+    color: #F1F5F9 !important;
+    background: #140D06 !important;
+}
+.stButton > button:focus {
+    border-color: #EA580C !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
 /* Encabezado principal */
 .rh-wrapper {
     display: flex;
@@ -99,19 +121,47 @@ div[data-testid="stRadio"] > div {
     flex-wrap: wrap;
 }
 div[data-testid="stRadio"] label {
-    background: #0F1923;
-    border: 1px solid #1A2535;
-    border-radius: 8px;
-    padding: 6px 14px;
-    font-size: 13px;
-    color: #94A3B8;
-    cursor: pointer;
-    transition: all 0.2s;
+    background: #0F1923 !important;
+    border: 1px solid #1A2535 !important;
+    border-radius: 8px !important;
+    padding: 6px 14px !important;
+    font-size: 13px !important;
+    color: #94A3B8 !important;
+    cursor: pointer !important;
+    transition: all 0.2s !important;
 }
 div[data-testid="stRadio"] label:hover {
-    border-color: #EA580C;
-    color: #F1F5F9;
+    border-color: #EA580C !important;
+    color: #F1F5F9 !important;
 }
+div[data-testid="stRadio"] label[data-checked="true"],
+div[data-testid="stRadio"] label:has(input:checked) {
+    border-color: #EA580C !important;
+    color: #FB923C !important;
+    background: #1C0F06 !important;
+}
+
+/* Fondo del área principal */
+[data-testid="stAppViewContainer"] > section > div {
+    background: #0C1219 !important;
+}
+
+/* Info/warning boxes */
+[data-testid="stAlert"] {
+    background: #0F1923 !important;
+    border: 1px solid #1A2535 !important;
+    color: #94A3B8 !important;
+    border-radius: 10px !important;
+}
+
+/* Selectbox */
+[data-testid="stSelectbox"] > div > div {
+    background: #0F1923 !important;
+    border: 1px solid #1A2535 !important;
+    color: #E2E8F0 !important;
+    border-radius: 8px !important;
+}
+[data-testid="stSelectbox"] svg { fill: #475569 !important; }
 
 /* Botones de ciudad */
 .city-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 1rem 0; }
@@ -178,21 +228,21 @@ div[data-testid="stRadio"] label:hover {
     font-weight: 500 !important;
 }
 
-/* Botón de predicción */
+/* Botón de predicción — primary */
 .stButton > button[kind="primary"] {
     background: #EA580C !important;
     border: none !important;
     border-radius: 10px !important;
-    font-family: 'Outfit', sans-serif !important;
     font-size: 15px !important;
     font-weight: 700 !important;
     letter-spacing: 0.02em !important;
     color: #fff !important;
     height: 52px !important;
-    transition: all 0.18s !important;
 }
 .stButton > button[kind="primary"]:hover {
     background: #C2410C !important;
+    border: none !important;
+    color: #fff !important;
     transform: translateY(-1px);
 }
 .stButton > button[kind="primary"]:active {
