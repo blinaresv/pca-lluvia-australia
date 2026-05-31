@@ -1,12 +1,13 @@
 """
 app.py — RainCast Australia
 PCA + Regresión Logística | Fundación Universitaria Los Libertadores 2024
-v5.0: tema claro, paleta azul oceánico, imágenes de Australia
+v6.0: mapa interactivo Leaflet por ciudad
 """
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import streamlit as st
+import streamlit.components.v1 as components
 import joblib, requests
 import pandas as pd
 import numpy as np
@@ -47,6 +48,24 @@ html, body, [class*="css"] { font-family: 'Outfit', sans-serif; }
 
 /* Ocultar toolbar */
 [data-testid="stToolbar"] { display: none; }
+
+/* Botón de abrir/cerrar sidebar — hacerlo visible */
+[data-testid="collapsedControl"] {
+    background: #0F2B5B !important;
+    border-radius: 0 8px 8px 0 !important;
+    border: 1px solid #1E3F6F !important;
+    border-left: none !important;
+    width: 28px !important;
+    top: 50% !important;
+    color: #7DD3FC !important;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.15) !important;
+}
+[data-testid="collapsedControl"]:hover {
+    background: #1E3F6F !important;
+}
+[data-testid="collapsedControl"] svg {
+    fill: #7DD3FC !important;
+}
 
 /* ── Hero con imagen ─────────────────────────────────── */
 .hero {
@@ -449,6 +468,97 @@ except Exception as e:
     models_ok = False
     st.error(f"Error cargando modelos: {e}")
 
+# ── Mapa Leaflet ──────────────────────────────────────────────────────────────
+def render_map(selected_city: str, height: int = 300) -> str:
+    """Genera HTML con mapa Leaflet centrado en la ciudad seleccionada."""
+    markers_js = ""
+    for city, info in CITIES.items():
+        lat, lon = info["lat"], info["lon"]
+        region   = info["region"]
+        season   = info["season"]
+        is_sel   = city == selected_city
+
+        if is_sel:
+            # Marcador principal — círculo animado con pulso
+            markers_js += f"""
+var pulseIcon = L.divIcon({{
+    className: '',
+    html: `<div style="
+        width:18px;height:18px;
+        background:#1D4ED8;
+        border:3px solid #fff;
+        border-radius:50%;
+        box-shadow:0 0 0 4px rgba(29,78,216,0.25);
+        animation: pulse 1.6s ease-in-out infinite;
+    "></div>`,
+    iconSize:[18,18],
+    iconAnchor:[9,9]
+}});
+L.marker([{lat},{lon}], {{icon: pulseIcon}})
+  .addTo(map)
+  .bindPopup(`<b style="font-size:13px">{city}</b><br>
+    <span style="font-size:11px;color:#64748B">{region}</span><br>
+    <span style="font-size:11px;color:#1D4ED8">Lluvia: {season}</span>`)
+  .openPopup();
+"""
+        else:
+            # Ciudades no seleccionadas — puntos pequeños
+            markers_js += f"""
+L.circleMarker([{lat},{lon}], {{
+    radius: 5,
+    color: '#fff',
+    fillColor: '#94A3B8',
+    fillOpacity: 0.9,
+    weight: 1.5
+}}).addTo(map)
+  .bindPopup(`<b style="font-size:12px">{city}</b><br>
+    <span style="font-size:10px;color:#64748B">{region}</span>`);
+"""
+
+    sel = CITIES[selected_city]
+    html = f"""<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  * {{ margin:0;padding:0;box-sizing:border-box; }}
+  html,body,#map {{ width:100%;height:{height}px; }}
+  @keyframes pulse {{
+    0%   {{ box-shadow:0 0 0 0   rgba(29,78,216,0.5); }}
+    70%  {{ box-shadow:0 0 0 10px rgba(29,78,216,0);   }}
+    100% {{ box-shadow:0 0 0 0   rgba(29,78,216,0);    }}
+  }}
+  .leaflet-popup-content-wrapper {{
+    border-radius:10px;
+    box-shadow:0 4px 16px rgba(0,0,0,0.12);
+    font-family:'Outfit',sans-serif;
+  }}
+  .leaflet-popup-tip {{ background:#fff; }}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<script>
+  var map = L.map('map', {{
+    center: [{sel['lat']},{sel['lon']}],
+    zoom: 5,
+    zoomControl: true,
+    attributionControl: false
+  }});
+
+  L.tileLayer('https://{{s}}.basemaps.cartocdn.com/rastertiles/voyager/{{z}}/{{x}}/{{y}}{{r}}.png', {{
+    subdomains: 'abcd',
+    maxZoom: 19
+  }}).addTo(map);
+
+  {markers_js}
+</script>
+</body>
+</html>"""
+    return html
+
 # ── SIDEBAR ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("""
@@ -543,15 +653,25 @@ if "reales" in mode:
     selected = st.session_state["selected_city"]
     st.markdown(f"<div class='city-tag'>Ciudad: <strong>{selected}</strong> · {CITIES[selected]['region']} · Temporada de lluvia: {CITIES[selected]['season']}</div>", unsafe_allow_html=True)
 
-    with st.spinner(f"Consultando Open-Meteo para {selected}…"):
-        api_data = fetch_weather(selected)
+    col_data, col_map = st.columns([1.1, 1], gap="medium")
 
-    if api_data:
-        st.markdown(f"""
-<div class='weather-row'>
+    with col_map:
+        components.html(render_map(selected, height=290), height=290)
+
+    with col_data:
+        with st.spinner(f"Consultando Open-Meteo para {selected}…"):
+            api_data = fetch_weather(selected)
+
+        if api_data:
+            st.markdown(f"""
+<div class='weather-row' style='grid-template-columns:1fr 1fr;'>
   <div class='w-card'>
     <div class='w-val'>{api_data['Temp9am']:.1f}°</div>
     <div class='w-lbl'>Temp 9am</div>
+  </div>
+  <div class='w-card'>
+    <div class='w-val'>{api_data['MaxTemp']:.1f}°</div>
+    <div class='w-lbl'>Temp máx</div>
   </div>
   <div class='w-card'>
     <div class='w-val'>{api_data['Humidity3pm']:.0f}%</div>
@@ -565,11 +685,16 @@ if "reales" in mode:
     <div class='w-val'>{api_data['Rainfall']:.1f}</div>
     <div class='w-lbl'>Lluvia hoy mm</div>
   </div>
+  <div class='w-card'>
+    <div class='w-val'>{api_data['Pressure9am']:.0f}</div>
+    <div class='w-lbl'>Presión hPa</div>
+  </div>
 </div>
 """, unsafe_allow_html=True)
-        inputs = {k: v for k, v in api_data.items() if not k.startswith("_")}
-    else:
-        st.warning("No se pudo conectar con Open-Meteo. Cambia a modo manual.")
+            inputs = {k: v for k, v in api_data.items() if not k.startswith("_")}
+        else:
+            st.warning("No se pudo conectar con Open-Meteo. Cambia a modo manual.")
+            components.html(render_map(selected, height=290), height=290)
 
 # ── MODO MANUAL ───────────────────────────────────────────────────────────────
 elif "manual" in mode:
