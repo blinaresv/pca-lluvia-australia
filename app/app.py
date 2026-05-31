@@ -49,29 +49,19 @@ html, body, [class*="css"] { font-family: 'Outfit', sans-serif; }
 /* Ocultar toolbar */
 [data-testid="stToolbar"] { display: none; }
 
-/* Botón de abrir/cerrar sidebar — hacerlo visible */
+/* Ocultar botón colapso sidebar — CSS amplio */
 [data-testid="collapsedControl"],
-button[kind="headerNoPadding"],
-section[data-testid="stSidebarCollapsedControl"],
-div[data-testid="stSidebarCollapsedControl"] {
-    background: #0F2B5B !important;
-    border-radius: 0 8px 8px 0 !important;
-    border: 1px solid #1E3F6F !important;
-    border-left: none !important;
-    width: 32px !important;
-    color: #7DD3FC !important;
-    box-shadow: 2px 0 8px rgba(0,0,0,0.15) !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-}
-[data-testid="collapsedControl"]:hover,
-div[data-testid="stSidebarCollapsedControl"]:hover {
-    background: #1A3F6F !important;
-}
-[data-testid="collapsedControl"] svg,
-div[data-testid="stSidebarCollapsedControl"] svg {
-    fill: #7DD3FC !important;
-    color: #7DD3FC !important;
+[data-testid="stSidebarCollapsedControl"],
+button[data-testid="baseButton-headerNoPadding"],
+[class*="collapsedControl"],
+[class*="sidebarToggle"],
+[class*="sidebar-toggle"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
 }
 
 /* ── Hero con imagen ─────────────────────────────────── */
@@ -568,6 +558,29 @@ L.circleMarker([{lat},{lon}], {{
 
 # ── SIDEBAR ───────────────────────────────────────────────────────────────────
 with st.sidebar:
+    # JS para ocultar el botón de colapso en cualquier versión de Streamlit
+    st.markdown("""
+<script>
+(function hideSidebarToggle() {
+    function hide() {
+        const selectors = [
+            '[data-testid="collapsedControl"]',
+            '[data-testid="stSidebarCollapsedControl"]',
+            'button[data-testid="baseButton-headerNoPadding"]',
+            '[class*="collapsedControl"]',
+            '[class*="sidebar-toggle"]'
+        ];
+        selectors.forEach(sel => {
+            document.querySelectorAll(sel).forEach(el => {
+                el.style.cssText = 'display:none!important;width:0!important;height:0!important;opacity:0!important;';
+            });
+        });
+    }
+    hide();
+    new MutationObserver(hide).observe(document.body, {childList:true, subtree:true});
+})();
+</script>
+""", unsafe_allow_html=True)
     st.markdown("""
 <div style='padding:1rem 0 0.2rem'>
   <div style='font-size:20px;font-weight:800;color:#FFFFFF;letter-spacing:-0.02em'>RainCast</div>
@@ -652,7 +665,7 @@ if "reales" in mode:
     for i, city in enumerate(CITIES):
         with city_cols[i % 6]:
             is_sel = city == st.session_state["selected_city"]
-            if st.button(city, key=f"c_{city}", use_container_width=True,
+            if st.button(city, key=f"c_{city}", width='stretch',
                          type="primary" if is_sel else "secondary"):
                 st.session_state["selected_city"] = city
                 st.rerun()
@@ -663,7 +676,7 @@ if "reales" in mode:
     col_data, col_map = st.columns([1.1, 1], gap="medium")
 
     with col_map:
-        components.html(render_map(selected, height=290), height=290)
+        st.iframe(render_map(selected, height=290), height=290)
 
     with col_data:
         with st.spinner(f"Consultando Open-Meteo para {selected}…"):
@@ -701,7 +714,7 @@ if "reales" in mode:
             inputs = {k: v for k, v in api_data.items() if not k.startswith("_")}
         else:
             st.warning("No se pudo conectar con Open-Meteo. Cambia a modo manual.")
-            components.html(render_map(selected, height=290), height=290)
+            st.iframe(render_map(selected, height=290), height=290)
 
 # ── MODO MANUAL ───────────────────────────────────────────────────────────────
 elif "manual" in mode:
@@ -761,7 +774,7 @@ else:
 
 # ── PREDICCIÓN ────────────────────────────────────────────────────────────────
 st.divider()
-predict_btn = st.button("Predecir si lloverá mañana", type="primary", use_container_width=True)
+predict_btn = st.button("Predecir si lloverá mañana", type="primary", width='stretch')
 
 if predict_btn and inputs:
     row   = pd.DataFrame([inputs], columns=feature_names)
@@ -818,7 +831,7 @@ if predict_btn and inputs:
         ax.yaxis.grid(True, color="#E2E8F0", linewidth=0.7)
         ax.set_axisbelow(True)
         plt.tight_layout()
-        st.pyplot(fig, use_container_width=True)
+        st.pyplot(fig, width='stretch')
         plt.close()
 
     # ── Análisis PCA ──────────────────────────────────────────────────────────
@@ -857,7 +870,7 @@ if predict_btn and inputs:
         ax2.xaxis.grid(True, color="#E2E8F0", lw=0.7)
         ax2.set_axisbelow(True)
         plt.tight_layout()
-        st.pyplot(fig2, use_container_width=True)
+        st.pyplot(fig2, width='stretch')
         plt.close()
         st.caption("Azul oscuro = relación positiva con PC1 · Azul claro = relación negativa")
 
