@@ -7,6 +7,7 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import streamlit as st
+import streamlit.components.v1 as components
 import joblib, requests
 import pandas as pd
 import numpy as np
@@ -557,29 +558,34 @@ L.circleMarker([{lat},{lon}], {{
 
 # ── SIDEBAR ───────────────────────────────────────────────────────────────────
 with st.sidebar:
-    # JS para ocultar el botón de colapso en cualquier versión de Streamlit
-    st.markdown("""
+    # Ocultar botón colapso sidebar via components.html (ejecuta JS real)
+    components.html("""
 <script>
-(function hideSidebarToggle() {
-    function hide() {
-        const selectors = [
+(function() {
+    function hideSidebarBtn() {
+        var selectors = [
             '[data-testid="collapsedControl"]',
             '[data-testid="stSidebarCollapsedControl"]',
-            'button[data-testid="baseButton-headerNoPadding"]',
-            '[class*="collapsedControl"]',
-            '[class*="sidebar-toggle"]'
+            'button[data-testid="stBaseButton-headerNoPadding"]',
+            'button[data-testid="baseButton-headerNoPadding"]'
         ];
-        selectors.forEach(sel => {
-            document.querySelectorAll(sel).forEach(el => {
-                el.style.cssText = 'display:none!important;width:0!important;height:0!important;opacity:0!important;';
+        selectors.forEach(function(sel) {
+            parent.document.querySelectorAll(sel).forEach(function(el) {
+                el.style.display = 'none';
+                el.style.visibility = 'hidden';
+                el.style.width = '0';
+                el.style.height = '0';
+                el.style.overflow = 'hidden';
+                el.style.position = 'absolute';
             });
         });
     }
-    hide();
-    new MutationObserver(hide).observe(document.body, {childList:true, subtree:true});
+    hideSidebarBtn();
+    new MutationObserver(hideSidebarBtn)
+        .observe(parent.document.body, {childList:true, subtree:true});
 })();
 </script>
-""", unsafe_allow_html=True)
+""", height=0)
     st.markdown("""
 <div style='padding:1rem 0 0.2rem'>
   <div style='font-size:20px;font-weight:800;color:#FFFFFF;letter-spacing:-0.02em'>RainCast</div>
@@ -664,7 +670,7 @@ if "reales" in mode:
     for i, city in enumerate(CITIES):
         with city_cols[i % 6]:
             is_sel = city == st.session_state["selected_city"]
-            if st.button(city, key=f"c_{city}", width='stretch',
+            if st.button(city, key=f"c_{city}", use_container_width=True,
                          type="primary" if is_sel else "secondary"):
                 st.session_state["selected_city"] = city
                 st.rerun()
@@ -675,7 +681,7 @@ if "reales" in mode:
     col_data, col_map = st.columns([1.1, 1], gap="medium")
 
     with col_map:
-        st.iframe(render_map(selected, height=290), height=290)
+        components.html(render_map(selected, height=290), height=290)
 
     with col_data:
         with st.spinner(f"Consultando Open-Meteo para {selected}…"):
@@ -713,7 +719,7 @@ if "reales" in mode:
             inputs = {k: v for k, v in api_data.items() if not k.startswith("_")}
         else:
             st.warning("No se pudo conectar con Open-Meteo. Cambia a modo manual.")
-            st.iframe(render_map(selected, height=290), height=290)
+            components.html(render_map(selected, height=290), height=290)
 
 # ── MODO MANUAL ───────────────────────────────────────────────────────────────
 elif "manual" in mode:
@@ -773,7 +779,7 @@ else:
 
 # ── PREDICCIÓN ────────────────────────────────────────────────────────────────
 st.divider()
-predict_btn = st.button("Predecir si lloverá mañana", type="primary", width='stretch')
+predict_btn = st.button("Predecir si lloverá mañana", type="primary", use_container_width=True)
 
 if predict_btn and inputs:
     row   = pd.DataFrame([inputs], columns=feature_names)
@@ -830,7 +836,7 @@ if predict_btn and inputs:
         ax.yaxis.grid(True, color="#E2E8F0", linewidth=0.7)
         ax.set_axisbelow(True)
         plt.tight_layout()
-        st.pyplot(fig, width='stretch')
+        st.pyplot(fig, use_container_width=True)
         plt.close()
 
     # ── Análisis PCA ──────────────────────────────────────────────────────────
