@@ -40,3 +40,6 @@ desktop.ini
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Documentos internos del equipo
+CHECKLIST_ENTREGA.md
