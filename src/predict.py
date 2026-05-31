@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 # Ruta base de los modelos (relativa a la raíz del proyecto)
-MODELS_DIR = Path(__file__).resolve().parent.parent / 'models'
+# Pipeline: StandardScaler -> PCA(95% varianza) -> LogisticRegression(balanced)
 
 
 def load_pipeline(models_dir: Path = MODELS_DIR) -> tuple:
