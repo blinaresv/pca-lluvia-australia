@@ -1,7 +1,7 @@
 """
 app.py — RainCast Australia
 PCA + Regresión Logística | Fundación Universitaria Los Libertadores 2024
-v4.0: diseño editorial, paleta slate/copper, layout asimétrico
+v5.0: tema claro, paleta azul oceánico, imágenes de Australia
 """
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
@@ -13,7 +13,6 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-import matplotlib.ticker as mticker
 
 # ── Página ────────────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -28,372 +27,359 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
-html, body, [class*="css"] {
-    font-family: 'Outfit', sans-serif;
-}
+html, body, [class*="css"] { font-family: 'Outfit', sans-serif; }
 
-.stApp { background: #0C1219; }
+/* Fondo general claro */
+.stApp { background: #F0F4F8; }
+[data-testid="stAppViewContainer"] { background: #F0F4F8; }
+[data-testid="stHeader"] { background: transparent !important; }
 
+/* Sidebar */
 [data-testid="stSidebar"] {
-    background: #0A0F16;
-    border-right: 1px solid #1A2535;
+    background: #0F2B5B;
+    border-right: none;
 }
-[data-testid="stSidebar"] * { color: #94A3B8 !important; }
-[data-testid="stSidebar"] strong { color: #E2E8F0 !important; }
+[data-testid="stSidebar"] * { color: #B8CCE8 !important; }
+[data-testid="stSidebar"] strong,
+[data-testid="stSidebar"] h2,
+[data-testid="stSidebar"] h3 { color: #FFFFFF !important; }
+[data-testid="stSidebar"] hr { border-color: #1E3F6F !important; }
 
-/* Ocultar toolbar matplotlib */
+/* Ocultar toolbar */
 [data-testid="stToolbar"] { display: none; }
 
-/* Todos los botones base — tema oscuro */
+/* ── Hero con imagen ─────────────────────────────────── */
+.hero {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+    height: 200px;
+}
+.hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: brightness(0.55);
+}
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(10,40,90,0.85) 0%, rgba(10,40,90,0.3) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 2.5rem;
+}
+.hero-tag {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #7DD3FC;
+    margin-bottom: 0.4rem;
+}
+.hero-title {
+    font-size: 1.9rem;
+    font-weight: 800;
+    color: #FFFFFF;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    margin: 0 0 0.3rem;
+}
+.hero-sub {
+    font-size: 13px;
+    color: #93C5FD;
+    margin: 0 0 0.25rem;
+}
+.hero-source {
+    font-size: 10px;
+    color: #3B6EA5;
+    font-style: italic;
+}
+
+/* ── Botones de ciudad ───────────────────────────────── */
 .stButton > button {
-    background: #0F1923 !important;
-    border: 1px solid #1A2535 !important;
+    background: #FFFFFF !important;
+    border: 1.5px solid #CBD5E1 !important;
     border-radius: 10px !important;
-    color: #94A3B8 !important;
+    color: #334155 !important;
     font-family: 'Outfit', sans-serif !important;
     font-size: 13px !important;
     font-weight: 500 !important;
-    transition: all 0.18s !important;
+    transition: all 0.15s !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
 }
 .stButton > button:hover {
-    border-color: #EA580C !important;
-    color: #F1F5F9 !important;
-    background: #140D06 !important;
+    border-color: #1D4ED8 !important;
+    color: #1D4ED8 !important;
+    background: #EFF6FF !important;
+    box-shadow: 0 2px 8px rgba(29,78,216,0.12) !important;
 }
 .stButton > button:focus {
-    border-color: #EA580C !important;
     box-shadow: none !important;
     outline: none !important;
 }
 
-/* Encabezado principal */
-.rh-wrapper {
-    display: flex;
-    align-items: stretch;
-    gap: 0;
-    margin-bottom: 2rem;
-    border: 1px solid #1A2535;
-    border-radius: 14px;
-    overflow: hidden;
-    background: #0F1923;
+/* Ciudad seleccionada */
+.stButton > button[kind="primary"] {
+    background: #1D4ED8 !important;
+    border: 1.5px solid #1D4ED8 !important;
+    color: #FFFFFF !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 12px rgba(29,78,216,0.25) !important;
 }
-.rh-accent {
-    width: 5px;
-    background: linear-gradient(180deg, #EA580C 0%, #C2410C 100%);
-    flex-shrink: 0;
-}
-.rh-content {
-    padding: 2rem 2rem 1.6rem;
-    flex: 1;
-}
-.rh-label {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.15em;
-    color: #EA580C;
-    text-transform: uppercase;
-    margin-bottom: 0.5rem;
-}
-.rh-title {
-    font-size: 2rem;
-    font-weight: 800;
-    color: #F1F5F9;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-    margin: 0 0 0.4rem;
-}
-.rh-sub {
-    font-size: 13px;
-    color: #475569;
-    margin: 0;
-}
-.rh-source {
-    font-size: 11px;
-    color: #334155;
-    margin-top: 0.6rem;
-    font-style: italic;
+.stButton > button[kind="primary"]:hover {
+    background: #1E40AF !important;
+    border-color: #1E40AF !important;
+    color: #FFFFFF !important;
 }
 
-/* Chips de modo */
-div[data-testid="stRadio"] > div {
-    gap: 10px;
-    flex-direction: row;
-    flex-wrap: wrap;
-}
+/* ── Chips de modo ───────────────────────────────────── */
 div[data-testid="stRadio"] label {
-    background: #0F1923 !important;
-    border: 1px solid #1A2535 !important;
+    background: #FFFFFF !important;
+    border: 1.5px solid #CBD5E1 !important;
     border-radius: 8px !important;
-    padding: 6px 14px !important;
+    padding: 6px 16px !important;
     font-size: 13px !important;
-    color: #94A3B8 !important;
+    font-weight: 500 !important;
+    color: #64748B !important;
     cursor: pointer !important;
-    transition: all 0.2s !important;
+    transition: all 0.15s !important;
 }
 div[data-testid="stRadio"] label:hover {
-    border-color: #EA580C !important;
-    color: #F1F5F9 !important;
-}
-div[data-testid="stRadio"] label[data-checked="true"],
-div[data-testid="stRadio"] label:has(input:checked) {
-    border-color: #EA580C !important;
-    color: #FB923C !important;
-    background: #1C0F06 !important;
+    border-color: #1D4ED8 !important;
+    color: #1D4ED8 !important;
 }
 
-/* Fondo del área principal */
-[data-testid="stAppViewContainer"] > section > div {
-    background: #0C1219 !important;
-}
-
-/* Info/warning boxes */
-[data-testid="stAlert"] {
-    background: #0F1923 !important;
-    border: 1px solid #1A2535 !important;
-    color: #94A3B8 !important;
-    border-radius: 10px !important;
-}
-
-/* Selectbox */
-[data-testid="stSelectbox"] > div > div {
-    background: #0F1923 !important;
-    border: 1px solid #1A2535 !important;
-    color: #E2E8F0 !important;
-    border-radius: 8px !important;
-}
-[data-testid="stSelectbox"] svg { fill: #475569 !important; }
-
-/* Botones de ciudad */
-.city-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 1rem 0; }
-.city-btn {
-    background: #0F1923;
-    border: 1px solid #1A2535;
-    border-radius: 8px;
-    padding: 8px 14px;
-    color: #94A3B8;
-    font-size: 12px;
-    font-family: 'Outfit', sans-serif;
-    cursor: pointer;
-    transition: all 0.18s;
-    line-height: 1.3;
-}
-.city-btn:hover { border-color: #EA580C; color: #F1F5F9; }
-.city-btn.active {
-    background: #1C0F06;
-    border-color: #EA580C;
-    color: #FB923C;
-}
-.city-btn .city-name { font-weight: 600; display: block; }
-.city-btn .city-region { font-size: 10px; color: #475569; display: block; }
-.city-btn.active .city-region { color: #7C2D12; }
-
-/* Tarjetas del clima actual */
+/* ── Tarjetas clima ──────────────────────────────────── */
 .weather-row {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    margin: 1rem 0;
+    gap: 10px;
+    margin: 1rem 0 1.5rem;
 }
-.weather-card {
-    background: #0F1923;
-    border: 1px solid #1A2535;
-    border-radius: 10px;
+.w-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
     padding: 14px 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
 }
-.weather-val {
-    font-size: 20px;
+.w-val {
+    font-size: 22px;
     font-weight: 700;
-    color: #F1F5F9;
+    color: #0F2B5B;
     font-family: 'JetBrains Mono', monospace;
     letter-spacing: -0.02em;
 }
-.weather-lbl {
+.w-lbl {
     font-size: 10px;
-    color: #475569;
+    color: #94A3B8;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     margin-top: 4px;
 }
 
-/* Expanders */
+/* ── Ciudad seleccionada tag ─────────────────────────── */
+.city-tag {
+    font-size: 12px;
+    color: #64748B;
+    margin: 6px 0 12px;
+}
+.city-tag strong { color: #1D4ED8; }
+
+/* ── Expanders ───────────────────────────────────────── */
 [data-testid="stExpander"] {
-    background: #0F1923 !important;
-    border: 1px solid #1A2535 !important;
-    border-radius: 10px !important;
-    margin-bottom: 8px;
+    background: #FFFFFF !important;
+    border: 1px solid #E2E8F0 !important;
+    border-radius: 12px !important;
+    margin-bottom: 8px !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
 }
 [data-testid="stExpander"] summary {
-    font-size: 13px !important;
-    color: #94A3B8 !important;
-    font-weight: 500 !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #334155 !important;
 }
 
-/* Botón de predicción — primary */
-.stButton > button[kind="primary"] {
-    background: #EA580C !important;
+/* ── Botón de predicción ─────────────────────────────── */
+button[data-testid="baseButton-primary"] {
+    background: #1D4ED8 !important;
     border: none !important;
-    border-radius: 10px !important;
-    font-size: 15px !important;
+    border-radius: 12px !important;
+    font-size: 16px !important;
     font-weight: 700 !important;
-    letter-spacing: 0.02em !important;
-    color: #fff !important;
-    height: 52px !important;
+    color: #FFFFFF !important;
+    height: 56px !important;
+    letter-spacing: 0.01em !important;
+    box-shadow: 0 4px 14px rgba(29,78,216,0.3) !important;
+    transition: all 0.18s !important;
 }
-.stButton > button[kind="primary"]:hover {
-    background: #C2410C !important;
-    border: none !important;
-    color: #fff !important;
+button[data-testid="baseButton-primary"]:hover {
+    background: #1E40AF !important;
+    box-shadow: 0 6px 20px rgba(29,78,216,0.4) !important;
     transform: translateY(-1px);
 }
-.stButton > button[kind="primary"]:active {
-    transform: scale(0.98) translateY(0px);
+button[data-testid="baseButton-primary"]:active {
+    transform: scale(0.98);
 }
 
-/* Resultado */
-.result-block {
-    background: #0F1923;
-    border: 1px solid #1A2535;
-    border-radius: 14px;
-    padding: 2rem;
+/* ── Resultado ───────────────────────────────────────── */
+.result-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 1.5rem;
+}
+.result-card {
+    background: #FFFFFF;
+    border-radius: 16px;
+    padding: 2rem 1.5rem;
     text-align: center;
+    border: 1.5px solid #E2E8F0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
-.result-block.rain {
-    border-color: #0369A1;
-    background: linear-gradient(135deg, #0C1F30 0%, #0F1923 100%);
-}
-.result-block.dry {
-    border-color: #065F46;
-    background: linear-gradient(135deg, #0A1F16 0%, #0F1923 100%);
-}
+.result-card.rain { border-color: #BAE6FD; background: #F0F9FF; }
+.result-card.dry  { border-color: #A7F3D0; background: #F0FDF4; }
 .result-pct {
-    font-size: 72px;
+    font-size: 76px;
     font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
     letter-spacing: -0.04em;
     line-height: 1;
-    font-family: 'JetBrains Mono', monospace;
-    margin: 0.5rem 0;
+    margin: 0.4rem 0;
 }
-.result-pct.rain { color: #38BDF8; }
-.result-pct.dry  { color: #34D399; }
+.result-pct.rain { color: #0369A1; }
+.result-pct.dry  { color: #065F46; }
 .result-verdict {
-    font-size: 16px;
+    font-size: 13px;
     font-weight: 700;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.3rem;
 }
-.result-verdict.rain { color: #7DD3FC; }
-.result-verdict.dry  { color: #6EE7B7; }
+.result-verdict.rain { color: #0284C7; }
+.result-verdict.dry  { color: #059669; }
 .result-note {
     font-size: 11px;
-    color: #334155;
+    color: #94A3B8;
     margin-top: 0.8rem;
-    line-height: 1.5;
+    line-height: 1.6;
 }
 
-/* Tabs análisis */
+/* ── Tabs ────────────────────────────────────────────── */
 .stTabs [data-baseweb="tab-list"] {
     background: transparent !important;
-    border-bottom: 1px solid #1A2535 !important;
+    border-bottom: 1px solid #E2E8F0 !important;
     gap: 0 !important;
 }
 .stTabs [data-baseweb="tab"] {
     background: transparent !important;
-    color: #475569 !important;
+    color: #94A3B8 !important;
     font-size: 13px !important;
     font-weight: 500 !important;
     border: none !important;
-    padding: 10px 18px !important;
+    padding: 10px 20px !important;
     border-bottom: 2px solid transparent !important;
 }
 .stTabs [aria-selected="true"] {
-    color: #FB923C !important;
-    border-bottom: 2px solid #EA580C !important;
+    color: #1D4ED8 !important;
+    border-bottom: 2px solid #1D4ED8 !important;
 }
 
-/* Stat pills en PCA */
+/* ── PCA pills ───────────────────────────────────────── */
 .pca-row { display: flex; gap: 8px; margin: 1rem 0; }
 .pca-pill {
-    background: #0F1923;
-    border: 1px solid #1A2535;
-    border-radius: 8px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 10px;
     padding: 10px 14px;
     text-align: center;
     flex: 1;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
 }
 .pca-val {
     font-size: 18px;
     font-weight: 700;
-    color: #FB923C;
+    color: #1D4ED8;
     font-family: 'JetBrains Mono', monospace;
 }
 .pca-lbl {
     font-size: 9px;
-    color: #475569;
+    color: #94A3B8;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     margin-top: 3px;
 }
 
-/* Sidebar métricas */
+/* ── Sidebar componentes ─────────────────────────────── */
 .sb-metric {
-    background: #0F1923;
-    border: 1px solid #1A2535;
+    background: #0A1E42;
+    border: 1px solid #1E3F6F;
     border-radius: 8px;
     padding: 10px 12px;
     margin-bottom: 6px;
 }
-.sb-val { font-size: 17px; font-weight: 700; color: #FB923C; font-family: 'JetBrains Mono', monospace; }
-.sb-lbl { font-size: 9px; color: #475569; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
-.sb-tip { font-size: 10px; color: #334155; margin-top: 3px; line-height: 1.4; }
+.sb-val { font-size: 17px; font-weight: 700; color: #7DD3FC; font-family: 'JetBrains Mono', monospace; }
+.sb-lbl { font-size: 9px; color: #3B6EA5; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 2px; }
+.sb-tip { font-size: 10px; color: #3B6EA5; margin-top: 3px; line-height: 1.4; }
 
-/* Divider */
-hr { border-color: #1A2535 !important; }
-
-/* Inputs número */
+/* ── Inputs ──────────────────────────────────────────── */
 .stNumberInput input {
-    background: #0F1923 !important;
-    border: 1px solid #1A2535 !important;
-    color: #E2E8F0 !important;
+    background: #FFFFFF !important;
+    border: 1.5px solid #CBD5E1 !important;
+    color: #1E293B !important;
     border-radius: 8px !important;
     font-family: 'JetBrains Mono', monospace !important;
     font-size: 14px !important;
 }
 .stSelectbox > div > div {
-    background: #0F1923 !important;
-    border: 1px solid #1A2535 !important;
-    color: #E2E8F0 !important;
+    background: #FFFFFF !important;
+    border: 1.5px solid #CBD5E1 !important;
+    color: #1E293B !important;
     border-radius: 8px !important;
 }
 
-/* Footer */
+/* ── Sección label ───────────────────────────────────── */
+.section-label {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #94A3B8;
+    margin: 1.2rem 0 0.4rem;
+}
+
+/* ── Footer ──────────────────────────────────────────── */
 .footer-bar {
     text-align: center;
-    color: #1E2D3D;
+    color: #CBD5E1;
     font-size: 11px;
     padding: 12px 0 4px;
-    border-top: 1px solid #1A2535;
+    border-top: 1px solid #E2E8F0;
     margin-top: 2rem;
 }
-.footer-bar a { color: #334155; text-decoration: none; }
-.footer-bar a:hover { color: #EA580C; }
+.footer-bar a { color: #94A3B8; text-decoration: none; }
+.footer-bar a:hover { color: #1D4ED8; }
 </style>
 """, unsafe_allow_html=True)
 
 # ── Ciudades ──────────────────────────────────────────────────────────────────
 CITIES = {
-    "Sydney":     {"lat":-33.87,"lon":151.21,"region":"NSW · Costa este",  "season":"Mar-Jun"},
-    "Melbourne":  {"lat":-37.81,"lon":144.96,"region":"VIC · Sur",         "season":"May-Ago"},
-    "Brisbane":   {"lat":-27.47,"lon":153.02,"region":"QLD · Subtropical", "season":"Feb-May"},
-    "Perth":      {"lat":-31.95,"lon":115.86,"region":"WA · Suroeste",     "season":"May-Sep"},
-    "Darwin":     {"lat":-12.46,"lon":130.84,"region":"NT · Tropical",     "season":"Nov-Abr"},
-    "Adelaide":   {"lat":-34.93,"lon":138.60,"region":"SA · Mediterráneo", "season":"May-Ago"},
-    "Canberra":   {"lat":-35.28,"lon":149.13,"region":"ACT · Interior",    "season":"Oct-Mar"},
-    "Hobart":     {"lat":-42.88,"lon":147.33,"region":"TAS · Sur",         "season":"May-Sep"},
-    "Cairns":     {"lat":-16.92,"lon":145.77,"region":"QLD · Tropical",    "season":"Dic-Mar"},
-    "Gold Coast": {"lat":-28.00,"lon":153.43,"region":"QLD · Costa",       "season":"Feb-May"},
-    "Newcastle":  {"lat":-32.93,"lon":151.78,"region":"NSW · Costa norte", "season":"Mar-Jun"},
-    "Wollongong": {"lat":-34.42,"lon":150.89,"region":"NSW · Costa sur",   "season":"Abr-Jun"},
+    "Sydney":     {"lat":-33.87,"lon":151.21,"region":"NSW · Costa este",  "season":"Mar-Jun",  "img":"1022692"},
+    "Melbourne":  {"lat":-37.81,"lon":144.96,"region":"VIC · Sur",         "season":"May-Ago",  "img":"1321831"},
+    "Brisbane":   {"lat":-27.47,"lon":153.02,"region":"QLD · Subtropical", "season":"Feb-May",  "img":"2193300"},
+    "Perth":      {"lat":-31.95,"lon":115.86,"region":"WA · Suroeste",     "season":"May-Sep",  "img":"1619317"},
+    "Darwin":     {"lat":-12.46,"lon":130.84,"region":"NT · Tropical",     "season":"Nov-Abr",  "img":"1287145"},
+    "Adelaide":   {"lat":-34.93,"lon":138.60,"region":"SA · Mediterráneo", "season":"May-Ago",  "img":"1823681"},
+    "Canberra":   {"lat":-35.28,"lon":149.13,"region":"ACT · Interior",    "season":"Oct-Mar",  "img":"1603650"},
+    "Hobart":     {"lat":-42.88,"lon":147.33,"region":"TAS · Sur",         "season":"May-Sep",  "img":"1566347"},
+    "Cairns":     {"lat":-16.92,"lon":145.77,"region":"QLD · Tropical",    "season":"Dic-Mar",  "img":"1018730"},
+    "Gold Coast": {"lat":-28.00,"lon":153.43,"region":"QLD · Costa",       "season":"Feb-May",  "img":"1680779"},
+    "Newcastle":  {"lat":-32.93,"lon":151.78,"region":"NSW · Costa norte", "season":"Mar-Jun",  "img":"1131546"},
+    "Wollongong": {"lat":-34.42,"lon":150.89,"region":"NSW · Costa sur",   "season":"Abr-Jun",  "img":"1591382"},
 }
 
 # ── Open-Meteo API ────────────────────────────────────────────────────────────
@@ -440,10 +426,6 @@ def fetch_weather(city: str):
             "Temp9am":       float(T[H_(9)]),
             "Temp3pm":       float(T[H_(15)]),
             "RainToday":     1 if rain_today > 1.0 else 0,
-            "_temp9":  float(T[H_(9)]),
-            "_hum3":   float(Hm[H_(15)]),
-            "_wind":   avg(WG),
-            "_rain":   rain_today,
         }
     except Exception:
         return None
@@ -470,65 +452,65 @@ except Exception as e:
 # ── SIDEBAR ───────────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("""
-<div style='padding:1.2rem 0 0.4rem'>
-  <div style='font-size:18px;font-weight:800;color:#F1F5F9;letter-spacing:-0.02em'>RainCast</div>
-  <div style='font-size:10px;color:#334155;text-transform:uppercase;letter-spacing:0.12em;margin-top:2px'>Australia · PCA</div>
-</div>
-""", unsafe_allow_html=True)
+<div style='padding:1rem 0 0.2rem'>
+  <div style='font-size:20px;font-weight:800;color:#FFFFFF;letter-spacing:-0.02em'>RainCast</div>
+  <div style='font-size:10px;color:#3B6EA5;text-transform:uppercase;letter-spacing:0.14em;margin-top:2px'>Australia · PCA</div>
+</div>""", unsafe_allow_html=True)
 
     st.divider()
-    st.markdown("<div style='font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px'>Métricas del modelo</div>", unsafe_allow_html=True)
+    st.markdown("<div style='font-size:10px;color:#3B6EA5;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;font-weight:600'>Métricas del modelo</div>", unsafe_allow_html=True)
 
-    metrics = [
-        ("76.97%", "Accuracy",  "Acierta en 3 de cada 4 días"),
-        ("0.849",  "ROC-AUC",   "Discriminación lluvia vs seco"),
-        ("76.27%", "Recall",    "Días lluviosos detectados"),
-        ("59.75%", "F1-Score",  "Balance precisión / recall"),
-    ]
-    cols = st.columns(2)
-    for i, (v, l, tip) in enumerate(metrics):
-        with cols[i % 2]:
-            st.markdown(f"""
+    for v, l, tip in [
+        ("76.97%","Accuracy","Acierta en 3 de cada 4 días"),
+        ("0.849","ROC-AUC","Discriminación lluvia vs seco"),
+        ("76.27%","Recall","Días lluviosos detectados"),
+        ("59.75%","F1-Score","Balance precisión / recall"),
+    ]:
+        st.markdown(f"""
 <div class='sb-metric'>
   <div class='sb-val'>{v}</div>
   <div class='sb-lbl'>{l}</div>
   <div class='sb-tip'>{tip}</div>
-</div>
-""", unsafe_allow_html=True)
+</div>""", unsafe_allow_html=True)
 
     if models_ok:
         st.divider()
-        st.markdown("<div style='font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px'>Reducción PCA</div>", unsafe_allow_html=True)
         st.markdown(f"""
 <div class='sb-metric'>
-  <div class='sb-val'>{len(feature_names)} <span style='color:#334155;font-size:14px'>→</span> {pca.n_components_}</div>
-  <div class='sb-lbl'>variables → componentes</div>
+  <div class='sb-val'>{len(feature_names)} <span style='color:#1E3F6F'>→</span> {pca.n_components_}</div>
+  <div class='sb-lbl'>Variables → Componentes PCA</div>
   <div class='sb-tip'>{sum(pca.explained_variance_ratio_)*100:.1f}% de información preservada</div>
-</div>
-""", unsafe_allow_html=True)
+</div>""", unsafe_allow_html=True)
 
     st.divider()
     st.markdown("""
-<div style='font-size:10px;color:#334155;line-height:1.7'>
-  Dataset: Rain in Australia<br>
+<div style='font-size:10px;color:#3B6EA5;line-height:1.8'>
   145 000+ obs · 49 estaciones · 2007–2017<br>
-  <a href='https://www.bom.gov.au/climate/data/' style='color:#EA580C'>Bureau of Meteorology</a>
+  <a href='https://www.bom.gov.au' style='color:#7DD3FC'>Bureau of Meteorology</a>
 </div>
-<div style='background:#1C0F06;border:1px solid #7C2D12;border-radius:8px;padding:8px 10px;font-size:10px;color:#9A3412;margin-top:0.8rem;line-height:1.5'>
+<div style='background:#071428;border:1px solid #1E3F6F;border-radius:8px;padding:8px 10px;font-size:10px;color:#3B6EA5;margin-top:0.8rem;line-height:1.5'>
   Herramienta académica. No reemplaza sistemas meteorológicos profesionales.
-</div>
-""", unsafe_allow_html=True)
-    st.markdown("<div style='font-size:10px;color:#1E2D3D;margin-top:1rem'>IA I · Los Libertadores · 2024</div>", unsafe_allow_html=True)
+</div>""", unsafe_allow_html=True)
+    st.markdown("<div style='font-size:10px;color:#1E3F6F;margin-top:1rem'>IA I · Los Libertadores · 2024</div>", unsafe_allow_html=True)
 
 # ── MAIN ──────────────────────────────────────────────────────────────────────
-st.markdown("""
-<div class='rh-wrapper'>
-  <div class='rh-accent'></div>
-  <div class='rh-content'>
-    <div class='rh-label'>Predicción meteorológica · Machine Learning</div>
-    <div class='rh-title'>¿Lloverá mañana en Australia?</div>
-    <div class='rh-sub'>PCA + Regresión Logística · Datos en tiempo real vía Open-Meteo</div>
-    <div class='rh-source'>Fuente del dataset: Bureau of Meteorology / Kaggle · Rain in Australia</div>
+if "selected_city" not in st.session_state:
+    st.session_state["selected_city"] = "Sydney"
+
+selected = st.session_state["selected_city"]
+city_img = CITIES[selected]["img"]
+
+# Hero con imagen de la ciudad seleccionada
+st.markdown(f"""
+<div class='hero'>
+  <img class='hero-img'
+       src='https://picsum.photos/seed/{city_img}/1400/300'
+       alt='{selected}, Australia'/>
+  <div class='hero-overlay'>
+    <div class='hero-tag'>Predicción meteorológica · Machine Learning</div>
+    <div class='hero-title'>¿Lloverá mañana en Australia?</div>
+    <div class='hero-sub'>PCA + Regresión Logística · Datos en tiempo real vía Open-Meteo</div>
+    <div class='hero-source'>Fuente: Bureau of Meteorology / Kaggle · Rain in Australia</div>
   </div>
 </div>
 """, unsafe_allow_html=True)
@@ -545,35 +527,21 @@ mode = st.radio(
 )
 
 inputs = {}
-api_data = None
 
 # ── MODO API ──────────────────────────────────────────────────────────────────
 if "reales" in mode:
-    if "selected_city" not in st.session_state:
-        st.session_state["selected_city"] = "Sydney"
-
-    city_html = "<div class='city-grid'>"
-    for city in CITIES:
-        active = "active" if city == st.session_state["selected_city"] else ""
-        city_html += f"""
-<button class='city-btn {active}' onclick="void(0)">
-  <span class='city-name'>{city}</span>
-  <span class='city-region'>{CITIES[city]['region']}</span>
-</button>"""
-    city_html += "</div>"
-
+    st.markdown("<div class='section-label'>Seleccionar ciudad</div>", unsafe_allow_html=True)
     city_cols = st.columns(6)
-    city_list = list(CITIES.keys())
-    for i, city in enumerate(city_list):
+    for i, city in enumerate(CITIES):
         with city_cols[i % 6]:
-            is_selected = city == st.session_state["selected_city"]
-            btn_type = "primary" if is_selected else "secondary"
-            if st.button(city, key=f"c_{city}", use_container_width=True, type=btn_type):
+            is_sel = city == st.session_state["selected_city"]
+            if st.button(city, key=f"c_{city}", use_container_width=True,
+                         type="primary" if is_sel else "secondary"):
                 st.session_state["selected_city"] = city
                 st.rerun()
 
     selected = st.session_state["selected_city"]
-    st.markdown(f"<div style='font-size:11px;color:#475569;margin-bottom:0.6rem'>Ciudad seleccionada: <span style='color:#FB923C;font-weight:600'>{selected}</span> · {CITIES[selected]['region']} · Temporada de lluvia: {CITIES[selected]['season']}</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='city-tag'>Ciudad: <strong>{selected}</strong> · {CITIES[selected]['region']} · Temporada de lluvia: {CITIES[selected]['season']}</div>", unsafe_allow_html=True)
 
     with st.spinner(f"Consultando Open-Meteo para {selected}…"):
         api_data = fetch_weather(selected)
@@ -581,21 +549,21 @@ if "reales" in mode:
     if api_data:
         st.markdown(f"""
 <div class='weather-row'>
-  <div class='weather-card'>
-    <div class='weather-val'>{api_data['Temp9am']:.1f}°</div>
-    <div class='weather-lbl'>Temp 9am</div>
+  <div class='w-card'>
+    <div class='w-val'>{api_data['Temp9am']:.1f}°</div>
+    <div class='w-lbl'>Temp 9am</div>
   </div>
-  <div class='weather-card'>
-    <div class='weather-val'>{api_data['Humidity3pm']:.0f}%</div>
-    <div class='weather-lbl'>Humedad 3pm</div>
+  <div class='w-card'>
+    <div class='w-val'>{api_data['Humidity3pm']:.0f}%</div>
+    <div class='w-lbl'>Humedad 3pm</div>
   </div>
-  <div class='weather-card'>
-    <div class='weather-val'>{api_data['WindGustSpeed']:.0f}</div>
-    <div class='weather-lbl'>Ráfaga km/h</div>
+  <div class='w-card'>
+    <div class='w-val'>{api_data['WindGustSpeed']:.0f}</div>
+    <div class='w-lbl'>Ráfaga km/h</div>
   </div>
-  <div class='weather-card'>
-    <div class='weather-val'>{api_data['Rainfall']:.1f}</div>
-    <div class='weather-lbl'>Lluvia hoy mm</div>
+  <div class='w-card'>
+    <div class='w-val'>{api_data['Rainfall']:.1f}</div>
+    <div class='w-lbl'>Lluvia hoy mm</div>
   </div>
 </div>
 """, unsafe_allow_html=True)
@@ -614,11 +582,10 @@ elif "manual" in mode:
             inputs["Temp9am"]   = st.number_input("Temp. 9am (°C)",      -10.0, 50.0,  med("Temp9am"),   .5)
             inputs["Temp3pm"]   = st.number_input("Temp. 3pm (°C)",      -10.0, 50.0,  med("Temp3pm"),   .5)
         with c2:
-            inputs["Rainfall"]    = st.number_input("Lluvia hoy (mm)",      0.0, 400.0, med("Rainfall"),    .5)
-            inputs["Evaporation"] = st.number_input("Evaporación (mm)",      0.0, 150.0, med("Evaporation"), .5)
-            inputs["Sunshine"]    = st.number_input("Horas de sol",          0.0,  14.5, med("Sunshine"),    .5)
+            inputs["Rainfall"]    = st.number_input("Lluvia hoy (mm)",    0.0, 400.0, med("Rainfall"),    .5)
+            inputs["Evaporation"] = st.number_input("Evaporación (mm)",   0.0, 150.0, med("Evaporation"), .5)
+            inputs["Sunshine"]    = st.number_input("Horas de sol",        0.0,  14.5, med("Sunshine"),    .5)
             inputs["RainToday"]   = st.selectbox("Llovió hoy", [0,1], format_func=lambda x:"Sí" if x else "No")
-
     with st.expander("Viento y presión"):
         c1, c2 = st.columns(2)
         with c1:
@@ -628,7 +595,6 @@ elif "manual" in mode:
         with c2:
             inputs["Pressure9am"] = st.number_input("Presión 9am (hPa)", 970.0, 1050.0, med("Pressure9am"), .5)
             inputs["Pressure3pm"] = st.number_input("Presión 3pm (hPa)", 970.0, 1050.0, med("Pressure3pm"), .5)
-
     with st.expander("Humedad y nubosidad"):
         c1, c2 = st.columns(2)
         with c1:
@@ -659,7 +625,7 @@ else:
     }
     choice = st.selectbox("Escenario", list(EXAMPLES.keys()))
     inputs = EXAMPLES[choice]
-    st.info(f"Escenario cargado: **{choice}**")
+    st.info(f"Escenario: **{choice}**")
 
 # ── PREDICCIÓN ────────────────────────────────────────────────────────────────
 st.divider()
@@ -679,10 +645,10 @@ if predict_btn and inputs:
     with col_res:
         if pred == 1:
             st.markdown(f"""
-<div class='result-block rain'>
+<div class='result-card rain'>
   <div class='result-verdict rain'>Lluvia esperada mañana</div>
   <div class='result-pct rain'>{p_rain*100:.1f}%</div>
-  <div style='font-size:12px;color:#0369A1'>probabilidad de precipitación</div>
+  <div style='font-size:12px;color:#0284C7'>probabilidad de precipitación</div>
   <div class='result-note'>
     El modelo detecta condiciones propicias.<br>
     Recall: 76.27% — captura la mayoría de días lluviosos.
@@ -690,42 +656,41 @@ if predict_btn and inputs:
 </div>""", unsafe_allow_html=True)
         else:
             st.markdown(f"""
-<div class='result-block dry'>
+<div class='result-card dry'>
   <div class='result-verdict dry'>Día seco esperado</div>
   <div class='result-pct dry'>{p_dry*100:.1f}%</div>
-  <div style='font-size:12px;color:#065F46'>probabilidad de día sin lluvia</div>
+  <div style='font-size:12px;color:#059669'>probabilidad de día sin lluvia</div>
   <div class='result-note'>
     Las condiciones actuales sugieren un día sin precipitaciones.<br>
-    Accuracy general del modelo: 76.97%.
+    Accuracy general: 76.97%.
   </div>
 </div>""", unsafe_allow_html=True)
 
     with col_chart:
-        BG = "#0C1219"
-        fig, ax = plt.subplots(figsize=(5.5, 4), facecolor=BG)
-        ax.set_facecolor(BG)
-        colors = ["#10B981", "#0EA5E9"]
+        fig, ax = plt.subplots(figsize=(5.5, 4), facecolor="white")
+        ax.set_facecolor("#F8FAFC")
         bars = ax.bar(["Sin lluvia", "Con lluvia"], [p_dry*100, p_rain*100],
-                      color=colors, width=0.45, edgecolor=BG)
+                      color=["#059669","#0284C7"], width=0.45, edgecolor="white")
         for bar, v in zip(bars, [p_dry*100, p_rain*100]):
-            ax.text(bar.get_x()+bar.get_width()/2, v+1.8,
+            ax.text(bar.get_x()+bar.get_width()/2, v+1.5,
                     f"{v:.1f}%", ha="center", va="bottom",
-                    fontsize=13, fontweight="bold", color="#F1F5F9",
+                    fontsize=13, fontweight="bold", color="#1E293B",
                     fontfamily="monospace")
         ax.set_ylim(0, 115)
-        ax.set_ylabel("Probabilidad (%)", color="#334155", fontsize=10)
-        ax.set_title("Probabilidad por clase", color="#94A3B8", fontsize=11, fontweight="bold", pad=12)
-        ax.tick_params(colors="#334155", labelsize=10)
-        for sp in ax.spines.values(): sp.set_color("#1A2535")
-        ax.yaxis.grid(True, color="#1A2535", linewidth=0.6, linestyle="--")
+        ax.set_ylabel("Probabilidad (%)", color="#64748B", fontsize=10)
+        ax.set_title("Probabilidad por clase", color="#334155",
+                     fontsize=11, fontweight="bold", pad=12)
+        ax.tick_params(colors="#94A3B8", labelsize=10)
+        for sp in ["top","right"]: ax.spines[sp].set_visible(False)
+        for sp in ["left","bottom"]: ax.spines[sp].set_color("#E2E8F0")
+        ax.yaxis.grid(True, color="#E2E8F0", linewidth=0.7)
         ax.set_axisbelow(True)
         plt.tight_layout()
         st.pyplot(fig, use_container_width=True)
         plt.close()
 
     # ── Análisis PCA ──────────────────────────────────────────────────────────
-    st.markdown("<div style='margin-top:1.5rem;margin-bottom:0.4rem;font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:0.1em'>Análisis de componentes principales</div>", unsafe_allow_html=True)
-
+    st.markdown("<div class='section-label'>Análisis de componentes principales</div>", unsafe_allow_html=True)
     st.markdown(f"""
 <div class='pca-row'>
   <div class='pca-pill'><div class='pca-val'>{len(feature_names)}</div><div class='pca-lbl'>Variables leídas</div></div>
@@ -738,34 +703,31 @@ if predict_btn and inputs:
     tab_dim, tab_pesos = st.tabs(["Reducción dimensional", "Peso de variables"])
 
     with tab_dim:
-        st.markdown("""
-Variables como **Temp9am / Temp3pm** (r = 0.97) y **Presión 9am / 3pm** (r = 0.96) aportan información redundante.
-PCA las agrupa en componentes ortogonales, dejando el clasificador libre de multicolinealidad.
-""")
+        st.markdown("Variables como **Temp9am / Temp3pm** (r = 0.97) y **Presión 9am / 3pm** (r = 0.96) aportan información redundante. PCA las agrupa en componentes ortogonales, dejando el clasificador libre de multicolinealidad.")
 
     with tab_pesos:
         loadings = pd.DataFrame(pca.components_.T,
                                 index=[f.replace("_"," ") for f in feature_names],
                                 columns=[f"PC{i+1}" for i in range(pca.n_components_)])
         top5 = loadings["PC1"].abs().nlargest(5)
-
-        fig2, ax2 = plt.subplots(figsize=(7, 3.2), facecolor=BG)
-        ax2.set_facecolor(BG)
-        colors_b = ["#EA580C" if loadings.loc[f,"PC1"]>0 else "#0EA5E9" for f in top5.index]
+        fig2, ax2 = plt.subplots(figsize=(7, 3.2), facecolor="white")
+        ax2.set_facecolor("#F8FAFC")
+        colors_b = ["#1D4ED8" if loadings.loc[f,"PC1"]>0 else "#0284C7" for f in top5.index]
         ax2.barh(list(top5.index), [loadings.loc[f,"PC1"] for f in top5.index],
-                 color=colors_b, edgecolor=BG, height=0.55)
-        ax2.set_xlabel("Peso en PC1", color="#334155", fontsize=10)
-        ax2.set_title("Top 5 variables con mayor influencia en PC1", color="#94A3B8",
-                      fontsize=11, fontweight="bold")
-        ax2.axvline(0, color="#1A2535", lw=1)
-        ax2.tick_params(colors="#475569", labelsize=9)
-        for sp in ax2.spines.values(): sp.set_color("#1A2535")
-        ax2.xaxis.grid(True, color="#1A2535", lw=0.6, linestyle="--")
+                 color=colors_b, edgecolor="white", height=0.55)
+        ax2.set_xlabel("Peso en PC1", color="#64748B", fontsize=10)
+        ax2.set_title("Top 5 variables con mayor influencia en PC1",
+                      color="#334155", fontsize=11, fontweight="bold")
+        ax2.axvline(0, color="#E2E8F0", lw=1)
+        ax2.tick_params(colors="#94A3B8", labelsize=9)
+        for sp in ["top","right"]: ax2.spines[sp].set_visible(False)
+        for sp in ["left","bottom"]: ax2.spines[sp].set_color("#E2E8F0")
+        ax2.xaxis.grid(True, color="#E2E8F0", lw=0.7)
         ax2.set_axisbelow(True)
         plt.tight_layout()
         st.pyplot(fig2, use_container_width=True)
         plt.close()
-        st.caption("Naranja = relación positiva con PC1 · Azul = relación negativa")
+        st.caption("Azul oscuro = relación positiva con PC1 · Azul claro = relación negativa")
 
 # ── Footer ────────────────────────────────────────────────────────────────────
 st.markdown("""
