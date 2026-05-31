@@ -50,21 +50,28 @@ html, body, [class*="css"] { font-family: 'Outfit', sans-serif; }
 [data-testid="stToolbar"] { display: none; }
 
 /* Botón de abrir/cerrar sidebar — hacerlo visible */
-[data-testid="collapsedControl"] {
+[data-testid="collapsedControl"],
+button[kind="headerNoPadding"],
+section[data-testid="stSidebarCollapsedControl"],
+div[data-testid="stSidebarCollapsedControl"] {
     background: #0F2B5B !important;
     border-radius: 0 8px 8px 0 !important;
     border: 1px solid #1E3F6F !important;
     border-left: none !important;
-    width: 28px !important;
-    top: 50% !important;
+    width: 32px !important;
     color: #7DD3FC !important;
     box-shadow: 2px 0 8px rgba(0,0,0,0.15) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
-[data-testid="collapsedControl"]:hover {
-    background: #1E3F6F !important;
+[data-testid="collapsedControl"]:hover,
+div[data-testid="stSidebarCollapsedControl"]:hover {
+    background: #1A3F6F !important;
 }
-[data-testid="collapsedControl"] svg {
+[data-testid="collapsedControl"] svg,
+div[data-testid="stSidebarCollapsedControl"] svg {
     fill: #7DD3FC !important;
+    color: #7DD3FC !important;
 }
 
 /* ── Hero con imagen ─────────────────────────────────── */
