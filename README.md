@@ -128,6 +128,52 @@ El Recall alto es la métrica más importante: un falso negativo (predecir sol c
 
 ---
 
+## Visualizaciones del análisis
+
+### Desbalance de Clases — RainTomorrow
+
+![Distribución de clases](data/processed/class_distribution.png)
+
+El dataset tiene un desbalance **3.46:1**: el 77.6% de los días no llueve y solo el 22.4% sí. El panel izquierdo muestra la frecuencia absoluta (110 316 días secos vs. 31 877 lluviosos) y el derecho la proporción en barra apilada. Este desbalance es la razón principal por la que el modelo usa `class_weight='balanced'`: sin ese ajuste, el clasificador ignoraría la clase minoritaria y prediciría "no lluvia" casi siempre, obteniendo un accuracy alto pero inútil.
+
+---
+
+### Matriz de Correlación — Evidencia para usar PCA
+
+![Matriz de correlación](data/processed/correlation_matrix.png)
+
+Mapa de calor de las correlaciones de Pearson entre las 16 variables numéricas del dataset. Los tonos más oscuros revelan correlaciones fuertes: `Temp9am` y `Temp3pm` alcanzan r = 0.98, `Pressure9am` y `Pressure3pm` r = 0.96, y todas las temperaturas entre sí superan r = 0.85. Cuando dos variables tienen correlación tan alta están midiendo prácticamente lo mismo —el clasificador desperdicia capacidad de aprendizaje en redundancia. PCA detecta esas relaciones y las colapsa en componentes ortogonales independientes, eliminando la multicolinealidad antes de que llegue al modelo.
+
+---
+
+### Varianza Explicada por PCA
+
+![Varianza PCA](data/processed/pca_variance.png)
+
+Dos paneles complementarios. El **scree plot** (izquierda) muestra cuánta varianza aporta cada componente individualmente: el primer componente concentra el 30.5%, el segundo el 19.2%, y la contribución cae rápidamente. La **varianza acumulada** (derecha) confirma que con solo **11 de los 17 componentes** se alcanza el 95.18% de la información total. Las líneas de referencia marcan los umbrales del 95% y 99%. Esto justifica la configuración `PCA(n_components=0.95)`: se reduce la dimensionalidad un 35% sin perder información relevante para la clasificación.
+
+---
+
+### Loadings PCA — Qué mide cada componente
+
+![Loadings PCA](data/processed/pca_loadings.png)
+
+Heatmap de la matriz de loadings: cada celda indica cuánto contribuye una variable original a un componente principal (rojo = correlación directa fuerte, azul = correlación inversa fuerte, blanco = sin contribución). **PC1** tiene cargas altas en las cuatro variables de temperatura (`MinTemp`, `MaxTemp`, `Temp9am`, `Temp3pm`), resumiendo el "calor del día". **PC2** carga principalmente en `Humidity3pm` y `Sunshine`, capturando la humedad vespertina. Esta tabla permite asignarle un significado meteorológico tentativo a cada componente, compensando parcialmente la pérdida de interpretabilidad que introduce PCA.
+
+---
+
+### Evaluación del Modelo Final
+
+![Evaluación del modelo](data/processed/model_evaluation.png)
+
+Tres paneles que resumen el rendimiento sobre el conjunto de prueba (~28 000 observaciones):
+
+- **Matriz de confusión:** el modelo acierta 17 027 días secos y detecta 4 862 días lluviosos. Los 1 513 falsos negativos (lluvia no detectada) son el error más costoso en contexto meteorológico, y el modelo los minimiza priorizando el recall.
+- **Curva ROC:** el área bajo la curva (AUC = 0.849) mide la capacidad de discriminación a todos los umbrales posibles. La curva se aleja claramente de la diagonal (clasificador aleatorio = 0.5), indicando buena separación entre clases.
+- **Resumen de métricas:** el Recall de 0.763 es la métrica clave —el modelo detecta 3 de cada 4 días lluviosos reales. La Precision de 0.491 indica que también genera falsos positivos, pero en meteorología es preferible alertar de más que no alertar cuando corresponde.
+
+---
+
 ## Limitaciones del predictor
 
 1. Solo predicción binaria (sí/no): no estima cantidad ni intensidad de lluvia.
