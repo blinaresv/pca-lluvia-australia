@@ -71,18 +71,14 @@ button[data-testid="baseButton-headerNoPadding"],
     overflow: hidden;
     margin-bottom: 1.5rem;
     height: 200px;
-}
-.hero-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    filter: brightness(0.55);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 .hero-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, rgba(10,40,90,0.85) 0%, rgba(10,40,90,0.3) 100%);
+    background: linear-gradient(90deg, rgba(10,40,90,0.88) 0%, rgba(10,40,90,0.55) 60%, rgba(10,40,90,0.45) 100%);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -637,10 +633,8 @@ city_img = CITIES[selected]["img"]
 
 # Hero con imagen de la ciudad seleccionada
 st.markdown(f"""
-<div class='hero'>
-  <img class='hero-img'
-       src='https://picsum.photos/seed/{city_img}/1400/300'
-       alt='{selected}, Australia'/>
+<div class='hero'
+     style='background-image: url("https://picsum.photos/seed/{city_img}/1800/400");'>
   <div class='hero-overlay'>
     <div class='hero-tag'>Predicción meteorológica · Machine Learning</div>
     <div class='hero-title'>¿Lloverá mañana en Australia?</div>
