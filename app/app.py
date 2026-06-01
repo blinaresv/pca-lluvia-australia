@@ -823,17 +823,6 @@ if predict_btn and inputs:
         st.pyplot(fig, use_container_width=True)
         plt.close()
 
-    # ── Análisis PCA ──────────────────────────────────────────────────────────
-    st.markdown("<div class='section-label'>Análisis de componentes principales</div>", unsafe_allow_html=True)
-    st.markdown(f"""
-<div class='pca-row'>
-  <div class='pca-pill'><div class='pca-val'>{len(feature_names)}</div><div class='pca-lbl'>Variables leídas</div></div>
-  <div class='pca-pill'><div class='pca-val'>{pca.n_components_}</div><div class='pca-lbl'>Componentes PCA</div></div>
-  <div class='pca-pill'><div class='pca-val'>{sum(pca.explained_variance_ratio_)*100:.1f}%</div><div class='pca-lbl'>Información preservada</div></div>
-  <div class='pca-pill'><div class='pca-val'>{(1-sum(pca.explained_variance_ratio_))*100:.1f}%</div><div class='pca-lbl'>Ruido descartado</div></div>
-</div>
-""", unsafe_allow_html=True)
-
     tab_dim, tab_pesos = st.tabs(["Reducción dimensional", "Peso de variables"])
 
     with tab_dim:
