@@ -795,23 +795,23 @@ if predict_btn and inputs:
 </div>""", unsafe_allow_html=True)
 
     with col_chart:
+        SET2 = ["#66C2A5", "#FC8D62", "#8DA0CB"]
         fig, ax = plt.subplots(figsize=(5.5, 4), facecolor="white")
-        ax.set_facecolor("#F8FAFC")
+        ax.set_facecolor("white")
         bars = ax.bar(["Sin lluvia", "Con lluvia"], [p_dry*100, p_rain*100],
-                      color=["#059669","#0284C7"], width=0.45, edgecolor="white")
+                      color=[SET2[0], SET2[1]], width=0.45, edgecolor="white")
         for bar, v in zip(bars, [p_dry*100, p_rain*100]):
             ax.text(bar.get_x()+bar.get_width()/2, v+1.5,
                     f"{v:.1f}%", ha="center", va="bottom",
                     fontsize=13, fontweight="bold", color="#1E293B",
                     fontfamily="monospace")
         ax.set_ylim(0, 115)
-        ax.set_ylabel("Probabilidad (%)", color="#64748B", fontsize=10)
-        ax.set_title("Probabilidad por clase", color="#334155",
-                     fontsize=11, fontweight="bold", pad=12)
-        ax.tick_params(colors="#94A3B8", labelsize=10)
+        ax.set_ylabel("Probabilidad (%)", fontsize=11)
+        ax.set_title("Probabilidad por clase", fontsize=12, fontweight="bold", pad=12)
+        ax.tick_params(labelsize=10)
         for sp in ["top","right"]: ax.spines[sp].set_visible(False)
         for sp in ["left","bottom"]: ax.spines[sp].set_color("#E2E8F0")
-        ax.yaxis.grid(True, color="#E2E8F0", linewidth=0.7)
+        ax.yaxis.grid(True, color="#E0E0E0", linewidth=0.6)
         ax.set_axisbelow(True)
         plt.tight_layout()
         st.pyplot(fig, use_container_width=True)
@@ -828,23 +828,23 @@ if predict_btn and inputs:
                                 columns=[f"PC{i+1}" for i in range(pca.n_components_)])
         top5 = loadings["PC1"].abs().nlargest(5)
         fig2, ax2 = plt.subplots(figsize=(7, 3.2), facecolor="white")
-        ax2.set_facecolor("#F8FAFC")
-        colors_b = ["#1D4ED8" if loadings.loc[f,"PC1"]>0 else "#0284C7" for f in top5.index]
+        ax2.set_facecolor("white")
+        colors_b = [SET2[0] if loadings.loc[f,"PC1"]>0 else SET2[1] for f in top5.index]
         ax2.barh(list(top5.index), [loadings.loc[f,"PC1"] for f in top5.index],
                  color=colors_b, edgecolor="white", height=0.55)
-        ax2.set_xlabel("Peso en PC1", color="#64748B", fontsize=10)
+        ax2.set_xlabel("Peso en PC1", fontsize=11)
         ax2.set_title("Top 5 variables con mayor influencia en PC1",
-                      color="#334155", fontsize=11, fontweight="bold")
-        ax2.axvline(0, color="#E2E8F0", lw=1)
-        ax2.tick_params(colors="#94A3B8", labelsize=9)
+                      fontsize=12, fontweight="bold")
+        ax2.axvline(0, color="#B0BEC5", lw=1)
+        ax2.tick_params(labelsize=10)
         for sp in ["top","right"]: ax2.spines[sp].set_visible(False)
         for sp in ["left","bottom"]: ax2.spines[sp].set_color("#E2E8F0")
-        ax2.xaxis.grid(True, color="#E2E8F0", lw=0.7)
+        ax2.xaxis.grid(True, color="#E0E0E0", lw=0.6)
         ax2.set_axisbelow(True)
         plt.tight_layout()
         st.pyplot(fig2, width='stretch')
         plt.close()
-        st.caption("Azul oscuro = relación positiva con PC1 · Azul claro = relación negativa")
+        st.caption("Teal = relación positiva con PC1 · Naranja = relación negativa")
 
 # ── Footer ────────────────────────────────────────────────────────────────────
 st.markdown("""
