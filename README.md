@@ -130,47 +130,47 @@ El Recall alto es la métrica más importante: un falso negativo (predecir sol c
 
 ## Visualizaciones del análisis
 
-### Desbalance de Clases — RainTomorrow
+### ¿Cuántos días llueve realmente en Australia?
 
 ![Distribución de clases](data/processed/class_distribution.png)
 
-El dataset tiene un desbalance **3.46:1**: el 77.6% de los días no llueve y solo el 22.4% sí. El panel izquierdo muestra la frecuencia absoluta (110 316 días secos vs. 31 877 lluviosos) y el derecho la proporción en barra apilada. Este desbalance es la razón principal por la que el modelo usa `class_weight='balanced'`: sin ese ajuste, el clasificador ignoraría la clase minoritaria y prediciría "no lluvia" casi siempre, obteniendo un accuracy alto pero inútil.
+De los más de 140 000 días registrados, **solo 1 de cada 4 terminó siendo lluvioso**. Eso significa que el modelo tiene muchos más ejemplos de días secos que de días con lluvia para aprender. Si no se corrige este desbalance, el modelo simplemente diría "no va a llover" casi siempre y acertaría el 77% de las veces sin aprender nada útil. Por eso se aplica un ajuste interno que obliga al modelo a prestar igual atención a los días lluviosos, aunque sean minoría.
 
 ---
 
-### Efecto del número de Componentes PCA en el Rendimiento
+### ¿Cuántas variables necesita el modelo realmente?
 
 ![Comparación de hiperparámetros](data/processed/hyperparameter_comparison.png)
 
-Barras agrupadas que comparan Accuracy, F1-Score y ROC-AUC para distintas configuraciones de `n_components` (2, 4 y 6 componentes fijos; 90%, 95% y 99% de varianza; y el baseline sin PCA). Con solo 2 o 4 componentes el F1 baja levemente; a partir del 90% las tres métricas se estabilizan y el modelo con **95% de varianza (11 componentes)** alcanza prácticamente el mismo rendimiento que el 99% y el baseline sin reducción, pero con un 35% menos de dimensiones. La línea punteada marca la configuración elegida.
+Esta gráfica muestra qué tan bien predice el modelo según la cantidad de variables que usa después de aplicar PCA. Con solo 2 o 4 variables resumidas el modelo ya funciona razonablemente, pero a partir de 11 variables el rendimiento se estabiliza y no mejora aunque se agreguen más. Usar 11 en lugar de las 17 originales significa **menos datos para procesar con prácticamente los mismos resultados**. La línea punteada señala la configuración que se eligió para este proyecto.
 
 ---
 
-### Varianza Explicada por PCA
+### ¿Cuánta información se pierde al resumir las variables?
 
 ![Varianza PCA](data/processed/pca_variance.png)
 
-Dos paneles complementarios. El **scree plot** (izquierda) muestra cuánta varianza aporta cada componente individualmente: el primer componente concentra el 30.5%, el segundo el 19.2%, y la contribución cae rápidamente. La **varianza acumulada** (derecha) confirma que con solo **11 de los 17 componentes** se alcanza el 95.18% de la información total. Las líneas de referencia marcan los umbrales del 95% y 99%. Esto justifica la configuración `PCA(n_components=0.95)`: se reduce la dimensionalidad un 35% sin perder información relevante para la clasificación.
+PCA convierte las 17 variables originales en versiones resumidas llamadas componentes. La gráfica de la izquierda muestra que los primeros componentes capturan la mayor parte de la información y los siguientes aportan cada vez menos. La gráfica de la derecha confirma que con **solo 11 componentes se conserva el 95% de toda la información del dataset**. Es como comprimir una imagen: se reduce el tamaño pero la imagen sigue siendo reconocible y útil.
 
 ---
 
-### Loadings PCA — Qué mide cada componente
+### ¿Qué hay detrás de cada componente resumido?
 
 ![Loadings PCA](data/processed/pca_loadings.png)
 
-Heatmap de la matriz de loadings: cada celda indica cuánto contribuye una variable original a un componente principal (rojo = correlación directa fuerte, azul = correlación inversa fuerte, blanco = sin contribución). **PC1** tiene cargas altas en las cuatro variables de temperatura (`MinTemp`, `MaxTemp`, `Temp9am`, `Temp3pm`), resumiendo el "calor del día". **PC2** carga principalmente en `Humidity3pm` y `Sunshine`, capturando la humedad vespertina. Esta tabla permite asignarle un significado meteorológico tentativo a cada componente, compensando parcialmente la pérdida de interpretabilidad que introduce PCA.
+Cuando PCA resume las variables, cada componente nuevo es una mezcla de las variables originales. Esta tabla muestra qué tanto pesa cada variable en cada componente: los colores rojos indican que esa variable sube cuando sube el componente, los azules que va en sentido contrario, y el blanco que casi no influye. Por ejemplo, el primer componente (PC1) está dominado por las temperaturas del día, así que se puede interpretar como un resumen del "calor del día". Esto ayuda a entender qué información está usando el modelo para predecir.
 
 ---
 
-### Evaluación del Modelo Final
+### ¿Qué tan bien predice el modelo?
 
 ![Evaluación del modelo](data/processed/model_evaluation.png)
 
-Tres paneles que resumen el rendimiento sobre el conjunto de prueba (~28 000 observaciones):
+Tres formas de ver el rendimiento del modelo sobre datos que nunca había visto:
 
-- **Matriz de confusión:** el modelo acierta 17 027 días secos y detecta 4 862 días lluviosos. Los 1 513 falsos negativos (lluvia no detectada) son el error más costoso en contexto meteorológico, y el modelo los minimiza priorizando el recall.
-- **Curva ROC:** el área bajo la curva (AUC = 0.849) mide la capacidad de discriminación a todos los umbrales posibles. La curva se aleja claramente de la diagonal (clasificador aleatorio = 0.5), indicando buena separación entre clases.
-- **Resumen de métricas:** el Recall de 0.763 es la métrica clave —el modelo detecta 3 de cada 4 días lluviosos reales. La Precision de 0.491 indica que también genera falsos positivos, pero en meteorología es preferible alertar de más que no alertar cuando corresponde.
+- **Izquierda — Aciertos y errores:** de los días que sí llovió, el modelo detectó correctamente 4 862 y se equivocó en 1 513. De los días que no llovió, acertó en 17 027 y tuvo 5 037 falsas alarmas. En clima es preferible avisar de más que no avisar cuando sí va a llover.
+- **Centro — Curva ROC:** muestra qué tan bien distingue el modelo un día lluvioso de uno seco. Cuanto más se acerca la curva al rincón superior izquierdo, mejor. Un valor de **0.849** indica una muy buena capacidad de discriminación.
+- **Derecha — Resumen de métricas:** el modelo acierta el 77% de los días en general y detecta **3 de cada 4 días lluviosos reales**, que es la cifra más importante para una herramienta de alerta meteorológica.
 
 ---
 
