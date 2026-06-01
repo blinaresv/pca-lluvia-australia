@@ -138,11 +138,11 @@ El dataset tiene un desbalance **3.46:1**: el 77.6% de los días no llueve y sol
 
 ---
 
-### Matriz de Correlación — Evidencia para usar PCA
+### Efecto del número de Componentes PCA en el Rendimiento
 
-![Matriz de correlación](data/processed/correlation_matrix.png)
+![Comparación de hiperparámetros](data/processed/hyperparameter_comparison.png)
 
-Mapa de calor de las correlaciones de Pearson entre las 16 variables numéricas del dataset. Los tonos más oscuros revelan correlaciones fuertes: `Temp9am` y `Temp3pm` alcanzan r = 0.98, `Pressure9am` y `Pressure3pm` r = 0.96, y todas las temperaturas entre sí superan r = 0.85. Cuando dos variables tienen correlación tan alta están midiendo prácticamente lo mismo —el clasificador desperdicia capacidad de aprendizaje en redundancia. PCA detecta esas relaciones y las colapsa en componentes ortogonales independientes, eliminando la multicolinealidad antes de que llegue al modelo.
+Barras agrupadas que comparan Accuracy, F1-Score y ROC-AUC para distintas configuraciones de `n_components` (2, 4 y 6 componentes fijos; 90%, 95% y 99% de varianza; y el baseline sin PCA). Con solo 2 o 4 componentes el F1 baja levemente; a partir del 90% las tres métricas se estabilizan y el modelo con **95% de varianza (11 componentes)** alcanza prácticamente el mismo rendimiento que el 99% y el baseline sin reducción, pero con un 35% menos de dimensiones. La línea punteada marca la configuración elegida.
 
 ---
 
