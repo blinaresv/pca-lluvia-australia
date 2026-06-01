@@ -665,7 +665,7 @@ inputs = {}
 
 # ── MODO API ──────────────────────────────────────────────────────────────────
 if "reales" in mode:
-    with st.expander("📡 Datos reales de una ciudad", expanded=True):
+    with st.expander("Datos reales de una ciudad", expanded=True):
         st.markdown("<div class='section-label'>Seleccionar ciudad</div>", unsafe_allow_html=True)
         city_cols = st.columns(6)
         for i, city in enumerate(CITIES):
@@ -692,32 +692,26 @@ if "reales" in mode:
                 st.markdown(f"""
 <div class='weather-row' style='grid-template-columns:1fr 1fr;'>
   <div class='w-card'>
-    <div style='font-size:20px;margin-bottom:3px'>🌡️</div>
     <div class='w-val'>{api_data['Temp9am']:.1f}°</div>
     <div class='w-lbl'>Temp 9am</div>
   </div>
   <div class='w-card'>
-    <div style='font-size:20px;margin-bottom:3px'>☀️</div>
     <div class='w-val'>{api_data['MaxTemp']:.1f}°</div>
     <div class='w-lbl'>Temp máx</div>
   </div>
   <div class='w-card'>
-    <div style='font-size:20px;margin-bottom:3px'>💧</div>
     <div class='w-val'>{api_data['Humidity3pm']:.0f}%</div>
     <div class='w-lbl'>Humedad 3pm</div>
   </div>
   <div class='w-card'>
-    <div style='font-size:20px;margin-bottom:3px'>💨</div>
     <div class='w-val'>{api_data['WindGustSpeed']:.0f}</div>
     <div class='w-lbl'>Ráfaga km/h</div>
   </div>
   <div class='w-card'>
-    <div style='font-size:20px;margin-bottom:3px'>🌧️</div>
     <div class='w-val'>{api_data['Rainfall']:.1f}</div>
     <div class='w-lbl'>Lluvia hoy mm</div>
   </div>
   <div class='w-card'>
-    <div style='font-size:20px;margin-bottom:3px'>🔵</div>
     <div class='w-val'>{api_data['Pressure9am']:.0f}</div>
     <div class='w-lbl'>Presión hPa</div>
   </div>
@@ -731,7 +725,7 @@ if "reales" in mode:
 # ── MODO MANUAL ───────────────────────────────────────────────────────────────
 elif "manual" in mode:
     def med(f): return float(feature_ranges[f]["median"])
-    with st.expander("🌡️ Temperatura y precipitación", expanded=True):
+    with st.expander("Temperatura y precipitación", expanded=True):
         c1, c2 = st.columns(2)
         with c1:
             inputs["MinTemp"]   = st.number_input("Temp. mínima (°C)",   -10.0, 50.0,  med("MinTemp"),   .5)
@@ -743,7 +737,7 @@ elif "manual" in mode:
             inputs["Evaporation"] = st.number_input("Evaporación (mm)",   0.0, 150.0, med("Evaporation"), .5)
             inputs["Sunshine"]    = st.number_input("Horas de sol",        0.0,  14.5, med("Sunshine"),    .5)
             inputs["RainToday"]   = st.selectbox("Llovió hoy", [0,1], format_func=lambda x:"Sí" if x else "No")
-    with st.expander("💨 Viento y presión"):
+    with st.expander("Viento y presión"):
         c1, c2 = st.columns(2)
         with c1:
             inputs["WindGustSpeed"] = st.number_input("Ráfaga (km/h)",     0.0, 200.0, med("WindGustSpeed"), 1.0)
@@ -752,7 +746,7 @@ elif "manual" in mode:
         with c2:
             inputs["Pressure9am"] = st.number_input("Presión 9am (hPa)", 970.0, 1050.0, med("Pressure9am"), .5)
             inputs["Pressure3pm"] = st.number_input("Presión 3pm (hPa)", 970.0, 1050.0, med("Pressure3pm"), .5)
-    with st.expander("💧 Humedad y nubosidad"):
+    with st.expander("Humedad y nubosidad"):
         c1, c2 = st.columns(2)
         with c1:
             inputs["Humidity9am"] = st.number_input("Humedad 9am (%)", 0.0, 100.0, med("Humidity9am"), 1.0)
