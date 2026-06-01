@@ -665,30 +665,31 @@ inputs = {}
 
 # ── MODO API ──────────────────────────────────────────────────────────────────
 if "reales" in mode:
-    st.markdown("<div class='section-label'>Seleccionar ciudad</div>", unsafe_allow_html=True)
-    city_cols = st.columns(6)
-    for i, city in enumerate(CITIES):
-        with city_cols[i % 6]:
-            is_sel = city == st.session_state["selected_city"]
-            if st.button(city, key=f"c_{city}", use_container_width=True,
-                         type="primary" if is_sel else "secondary"):
-                st.session_state["selected_city"] = city
-                st.rerun()
+    with st.expander("📡 Datos reales de una ciudad", expanded=True):
+        st.markdown("<div class='section-label'>Seleccionar ciudad</div>", unsafe_allow_html=True)
+        city_cols = st.columns(6)
+        for i, city in enumerate(CITIES):
+            with city_cols[i % 6]:
+                is_sel = city == st.session_state["selected_city"]
+                if st.button(city, key=f"c_{city}", use_container_width=True,
+                             type="primary" if is_sel else "secondary"):
+                    st.session_state["selected_city"] = city
+                    st.rerun()
 
-    selected = st.session_state["selected_city"]
-    st.markdown(f"<div class='city-tag'>Ciudad: <strong>{selected}</strong> · {CITIES[selected]['region']} · Temporada de lluvia: {CITIES[selected]['season']}</div>", unsafe_allow_html=True)
+        selected = st.session_state["selected_city"]
+        st.markdown(f"<div class='city-tag'>Ciudad: <strong>{selected}</strong> · {CITIES[selected]['region']} · Temporada de lluvia: {CITIES[selected]['season']}</div>", unsafe_allow_html=True)
 
-    col_data, col_map = st.columns([1.1, 1], gap="medium")
+        col_data, col_map = st.columns([1.1, 1], gap="medium")
 
-    with col_map:
-        components.html(render_map(selected, height=290), height=290)
+        with col_map:
+            components.html(render_map(selected, height=290), height=290)
 
-    with col_data:
-        with st.spinner(f"Consultando Open-Meteo para {selected}…"):
-            api_data = fetch_weather(selected)
+        with col_data:
+            with st.spinner(f"Consultando Open-Meteo para {selected}…"):
+                api_data = fetch_weather(selected)
 
-        if api_data:
-            st.markdown(f"""
+            if api_data:
+                st.markdown(f"""
 <div class='weather-row' style='grid-template-columns:1fr 1fr;'>
   <div class='w-card'>
     <div style='font-size:20px;margin-bottom:3px'>🌡️</div>
@@ -722,15 +723,15 @@ if "reales" in mode:
   </div>
 </div>
 """, unsafe_allow_html=True)
-            inputs = {k: v for k, v in api_data.items() if not k.startswith("_")}
-        else:
-            st.warning("No se pudo conectar con Open-Meteo. Cambia a modo manual.")
-            components.html(render_map(selected, height=290), height=290)
+                inputs = {k: v for k, v in api_data.items() if not k.startswith("_")}
+            else:
+                st.warning("No se pudo conectar con Open-Meteo. Cambia a modo manual.")
+                components.html(render_map(selected, height=290), height=290)
 
 # ── MODO MANUAL ───────────────────────────────────────────────────────────────
 elif "manual" in mode:
     def med(f): return float(feature_ranges[f]["median"])
-    with st.expander("Temperatura y precipitación", expanded=True):
+    with st.expander("🌡️ Temperatura y precipitación", expanded=True):
         c1, c2 = st.columns(2)
         with c1:
             inputs["MinTemp"]   = st.number_input("Temp. mínima (°C)",   -10.0, 50.0,  med("MinTemp"),   .5)
@@ -742,7 +743,7 @@ elif "manual" in mode:
             inputs["Evaporation"] = st.number_input("Evaporación (mm)",   0.0, 150.0, med("Evaporation"), .5)
             inputs["Sunshine"]    = st.number_input("Horas de sol",        0.0,  14.5, med("Sunshine"),    .5)
             inputs["RainToday"]   = st.selectbox("Llovió hoy", [0,1], format_func=lambda x:"Sí" if x else "No")
-    with st.expander("Viento y presión"):
+    with st.expander("💨 Viento y presión"):
         c1, c2 = st.columns(2)
         with c1:
             inputs["WindGustSpeed"] = st.number_input("Ráfaga (km/h)",     0.0, 200.0, med("WindGustSpeed"), 1.0)
@@ -751,7 +752,7 @@ elif "manual" in mode:
         with c2:
             inputs["Pressure9am"] = st.number_input("Presión 9am (hPa)", 970.0, 1050.0, med("Pressure9am"), .5)
             inputs["Pressure3pm"] = st.number_input("Presión 3pm (hPa)", 970.0, 1050.0, med("Pressure3pm"), .5)
-    with st.expander("Humedad y nubosidad"):
+    with st.expander("💧 Humedad y nubosidad"):
         c1, c2 = st.columns(2)
         with c1:
             inputs["Humidity9am"] = st.number_input("Humedad 9am (%)", 0.0, 100.0, med("Humidity9am"), 1.0)
@@ -759,50 +760,6 @@ elif "manual" in mode:
         with c2:
             inputs["Cloud9am"] = st.number_input("Nubosidad 9am (oktas)", 0.0, 9.0, med("Cloud9am"), 1.0)
             inputs["Cloud3pm"] = st.number_input("Nubosidad 3pm (oktas)", 0.0, 9.0, med("Cloud3pm"), 1.0)
-
-# ── CONTEXTO DIDÁCTICO ────────────────────────────────────────────────────────
-with st.expander("🌏 El clima de Australia — contexto del modelo", expanded=False):
-    st.markdown("""
-<div style='display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:1rem'>
-  <div>
-    <img src='https://picsum.photos/seed/rainforest-australia/500/200'
-         style='width:100%;height:130px;object-fit:cover;border-radius:10px'>
-    <div style='font-size:11px;color:#0284C7;margin-top:6px;font-weight:600'>🌧️ Costa este</div>
-    <div style='font-size:10px;color:#64748B'>NSW · QLD · Lluvias Mar–Jun</div>
-  </div>
-  <div>
-    <img src='https://picsum.photos/seed/outback-desert-sun/500/200'
-         style='width:100%;height:130px;object-fit:cover;border-radius:10px'>
-    <div style='font-size:11px;color:#D97706;margin-top:6px;font-weight:600'>☀️ Interior árido</div>
-    <div style='font-size:10px;color:#64748B'>WA · SA · Seco casi todo el año</div>
-  </div>
-  <div>
-    <img src='https://picsum.photos/seed/tropical-storm-clouds/500/200'
-         style='width:100%;height:130px;object-fit:cover;border-radius:10px'>
-    <div style='font-size:11px;color:#7C3AED;margin-top:6px;font-weight:600'>🌩️ Norte tropical</div>
-    <div style='font-size:10px;color:#64748B'>NT · Darwin · Monzón Nov–Abr</div>
-  </div>
-</div>
-""", unsafe_allow_html=True)
-    col_info1, col_info2 = st.columns(2)
-    with col_info1:
-        st.markdown("""
-**¿Qué variables usa el modelo?**
-
-| Variable | Importancia |
-|---|---|
-| 💧 Humedad 3pm | ⭐⭐⭐ Muy alta |
-| 🔵 Presión barométrica | ⭐⭐⭐ Muy alta |
-| 🌧️ Lluvia hoy (mm) | ⭐⭐ Alta |
-| 💨 Velocidad de ráfagas | ⭐⭐ Alta |
-| 🌡️ Temperatura máxima | ⭐ Media |
-""")
-    with col_info2:
-        st.markdown("""
-**¿Cómo funciona PCA?**
-
-El Análisis de Componentes Principales toma **17 variables** correlacionadas (p.ej. Temp 9am y Temp 3pm tienen r = 0.97) y las combina en **11 componentes independientes**, preservando el **95.2%** de la información original y eliminando ruido redundante antes de entrenar el clasificador.
-""")
 
 # ── PREDICCIÓN ────────────────────────────────────────────────────────────────
 st.divider()
