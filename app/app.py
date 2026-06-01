@@ -1,6 +1,6 @@
 """
 app.py — RainCast Australia
-PCA + Regresión Logística | Fundación Universitaria Los Libertadores 2024
+PCA + Regresión Logística | Fundación Universitaria Los Libertadores 2026
 v6.0: mapa interactivo Leaflet por ciudad
 """
 import sys, os
@@ -626,7 +626,7 @@ with st.sidebar:
 <div style='background:#071428;border:1px solid #1E3F6F;border-radius:8px;padding:8px 10px;font-size:10px;color:#3B6EA5;margin-top:0.8rem;line-height:1.5'>
   Herramienta académica. No reemplaza sistemas meteorológicos profesionales.
 </div>""", unsafe_allow_html=True)
-    st.markdown("<div style='font-size:10px;color:#1E3F6F;margin-top:1rem'>IA I · Los Libertadores · 2024</div>", unsafe_allow_html=True)
+    st.markdown("<div style='font-size:10px;color:#1E3F6F;margin-top:1rem'>IA I · Los Libertadores · 2026</div>", unsafe_allow_html=True)
 
 # ── MAIN ──────────────────────────────────────────────────────────────────────
 if "selected_city" not in st.session_state:
@@ -656,7 +656,7 @@ if not models_ok:
 # ── MODO ──────────────────────────────────────────────────────────────────────
 mode = st.radio(
     "Modo",
-    ["Datos reales de una ciudad", "Ingresar manualmente", "Caso de ejemplo"],
+    ["Datos reales de una ciudad", "Ingresar manualmente"],
     horizontal=True,
     label_visibility="collapsed"
 )
@@ -665,30 +665,31 @@ inputs = {}
 
 # ── MODO API ──────────────────────────────────────────────────────────────────
 if "reales" in mode:
-    st.markdown("<div class='section-label'>Seleccionar ciudad</div>", unsafe_allow_html=True)
-    city_cols = st.columns(6)
-    for i, city in enumerate(CITIES):
-        with city_cols[i % 6]:
-            is_sel = city == st.session_state["selected_city"]
-            if st.button(city, key=f"c_{city}", use_container_width=True,
-                         type="primary" if is_sel else "secondary"):
-                st.session_state["selected_city"] = city
-                st.rerun()
+    with st.expander("Datos reales de una ciudad", expanded=True):
+        st.markdown("<div class='section-label'>Seleccionar ciudad</div>", unsafe_allow_html=True)
+        city_cols = st.columns(6)
+        for i, city in enumerate(CITIES):
+            with city_cols[i % 6]:
+                is_sel = city == st.session_state["selected_city"]
+                if st.button(city, key=f"c_{city}", use_container_width=True,
+                             type="primary" if is_sel else "secondary"):
+                    st.session_state["selected_city"] = city
+                    st.rerun()
 
-    selected = st.session_state["selected_city"]
-    st.markdown(f"<div class='city-tag'>Ciudad: <strong>{selected}</strong> · {CITIES[selected]['region']} · Temporada de lluvia: {CITIES[selected]['season']}</div>", unsafe_allow_html=True)
+        selected = st.session_state["selected_city"]
+        st.markdown(f"<div class='city-tag'>Ciudad: <strong>{selected}</strong> · {CITIES[selected]['region']} · Temporada de lluvia: {CITIES[selected]['season']}</div>", unsafe_allow_html=True)
 
-    col_data, col_map = st.columns([1.1, 1], gap="medium")
+        col_data, col_map = st.columns([1.1, 1], gap="medium")
 
-    with col_map:
-        components.html(render_map(selected, height=290), height=290)
+        with col_map:
+            components.html(render_map(selected, height=290), height=290)
 
-    with col_data:
-        with st.spinner(f"Consultando Open-Meteo para {selected}…"):
-            api_data = fetch_weather(selected)
+        with col_data:
+            with st.spinner(f"Consultando Open-Meteo para {selected}…"):
+                api_data = fetch_weather(selected)
 
-        if api_data:
-            st.markdown(f"""
+            if api_data:
+                st.markdown(f"""
 <div class='weather-row' style='grid-template-columns:1fr 1fr;'>
   <div class='w-card'>
     <div class='w-val'>{api_data['Temp9am']:.1f}°</div>
@@ -716,10 +717,10 @@ if "reales" in mode:
   </div>
 </div>
 """, unsafe_allow_html=True)
-            inputs = {k: v for k, v in api_data.items() if not k.startswith("_")}
-        else:
-            st.warning("No se pudo conectar con Open-Meteo. Cambia a modo manual.")
-            components.html(render_map(selected, height=290), height=290)
+                inputs = {k: v for k, v in api_data.items() if not k.startswith("_")}
+            else:
+                st.warning("No se pudo conectar con Open-Meteo. Cambia a modo manual.")
+                components.html(render_map(selected, height=290), height=290)
 
 # ── MODO MANUAL ───────────────────────────────────────────────────────────────
 elif "manual" in mode:
@@ -753,29 +754,6 @@ elif "manual" in mode:
         with c2:
             inputs["Cloud9am"] = st.number_input("Nubosidad 9am (oktas)", 0.0, 9.0, med("Cloud9am"), 1.0)
             inputs["Cloud3pm"] = st.number_input("Nubosidad 3pm (oktas)", 0.0, 9.0, med("Cloud3pm"), 1.0)
-
-# ── MODO EJEMPLO ──────────────────────────────────────────────────────────────
-else:
-    EXAMPLES = {
-        "Día seco — Sydney (verano)": {
-            "MinTemp":18.0,"MaxTemp":29.5,"Rainfall":0.0,"Evaporation":6.4,
-            "Sunshine":9.5,"WindGustSpeed":35.0,"WindSpeed9am":15.0,"WindSpeed3pm":24.0,
-            "Humidity9am":55.0,"Humidity3pm":30.0,"Pressure9am":1020.0,"Pressure3pm":1015.0,
-            "Cloud9am":2.0,"Cloud3pm":3.0,"Temp9am":22.0,"Temp3pm":27.5,"RainToday":0},
-        "Día lluvioso — Melbourne (invierno)": {
-            "MinTemp":9.0,"MaxTemp":14.5,"Rainfall":8.2,"Evaporation":1.6,
-            "Sunshine":1.0,"WindGustSpeed":56.0,"WindSpeed9am":28.0,"WindSpeed3pm":35.0,
-            "Humidity9am":88.0,"Humidity3pm":80.0,"Pressure9am":1005.0,"Pressure3pm":1000.0,
-            "Cloud9am":7.0,"Cloud3pm":8.0,"Temp9am":11.0,"Temp3pm":13.5,"RainToday":1},
-        "Monzón — Darwin (noviembre)": {
-            "MinTemp":24.0,"MaxTemp":33.0,"Rainfall":12.4,"Evaporation":7.1,
-            "Sunshine":3.0,"WindGustSpeed":63.0,"WindSpeed9am":22.0,"WindSpeed3pm":30.0,
-            "Humidity9am":90.0,"Humidity3pm":82.0,"Pressure9am":1007.0,"Pressure3pm":1003.0,
-            "Cloud9am":7.0,"Cloud3pm":8.0,"Temp9am":27.5,"Temp3pm":31.0,"RainToday":1},
-    }
-    choice = st.selectbox("Escenario", list(EXAMPLES.keys()))
-    inputs = EXAMPLES[choice]
-    st.info(f"Escenario: **{choice}**")
 
 # ── PREDICCIÓN ────────────────────────────────────────────────────────────────
 st.divider()
@@ -839,17 +817,6 @@ if predict_btn and inputs:
         st.pyplot(fig, use_container_width=True)
         plt.close()
 
-    # ── Análisis PCA ──────────────────────────────────────────────────────────
-    st.markdown("<div class='section-label'>Análisis de componentes principales</div>", unsafe_allow_html=True)
-    st.markdown(f"""
-<div class='pca-row'>
-  <div class='pca-pill'><div class='pca-val'>{len(feature_names)}</div><div class='pca-lbl'>Variables leídas</div></div>
-  <div class='pca-pill'><div class='pca-val'>{pca.n_components_}</div><div class='pca-lbl'>Componentes PCA</div></div>
-  <div class='pca-pill'><div class='pca-val'>{sum(pca.explained_variance_ratio_)*100:.1f}%</div><div class='pca-lbl'>Información preservada</div></div>
-  <div class='pca-pill'><div class='pca-val'>{(1-sum(pca.explained_variance_ratio_))*100:.1f}%</div><div class='pca-lbl'>Ruido descartado</div></div>
-</div>
-""", unsafe_allow_html=True)
-
     tab_dim, tab_pesos = st.tabs(["Reducción dimensional", "Peso de variables"])
 
     with tab_dim:
@@ -882,7 +849,7 @@ if predict_btn and inputs:
 # ── Footer ────────────────────────────────────────────────────────────────────
 st.markdown("""
 <div class='footer-bar'>
-  Inteligencia Artificial I &nbsp;|&nbsp; Fundación Universitaria Los Libertadores 2024 &nbsp;|&nbsp;
+  Inteligencia Artificial I &nbsp;|&nbsp; Fundación Universitaria Los Libertadores 2026 &nbsp;|&nbsp;
   Dataset: <a href='https://www.kaggle.com/datasets/jsphyg/weather-dataset-rattle-package'>Rain in Australia — Kaggle</a> &nbsp;|&nbsp;
   Fuente: <a href='https://www.bom.gov.au/climate/data/'>Bureau of Meteorology</a> &nbsp;|&nbsp;
   API: <a href='https://open-meteo.com'>Open-Meteo</a>
