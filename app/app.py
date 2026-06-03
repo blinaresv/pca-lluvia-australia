@@ -402,21 +402,23 @@ def fetch_weather(city: str):
         "https://api.open-meteo.com/v1/forecast"
         f"?latitude={c['lat']}&longitude={c['lon']}"
         "&daily=precipitation_sum,sunshine_duration,et0_fao_evapotranspiration"
-        "&hourly=temperature_2m,relativehumidity_2m,surface_pressure,windspeed_10m,windgusts_10m,cloudcover"
+        "&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,wind_gusts_10m,cloud_cover"
         "&timezone=auto&forecast_days=2&wind_speed_unit=kmh"
     )
     try:
-        r = requests.get(url, timeout=8); r.raise_for_status()
+        r = requests.get(url, timeout=15); r.raise_for_status()
         d = r.json()
+        if "hourly" not in d:
+            return None, f"Respuesta inesperada: {str(d)[:200]}"
         t = d["hourly"]["time"]
         daily = d["daily"]
         H_ = lambda h: next((i for i,x in enumerate(t) if x.endswith(f"T{h:02d}:00")), 0)
         T  = d["hourly"]["temperature_2m"]
-        Hm = d["hourly"]["relativehumidity_2m"]
+        Hm = d["hourly"]["relative_humidity_2m"]
         P  = d["hourly"]["surface_pressure"]
-        W  = d["hourly"]["windspeed_10m"]
-        WG = d["hourly"]["windgusts_10m"]
-        CC = d["hourly"]["cloudcover"]
+        W  = d["hourly"]["wind_speed_10m"]
+        WG = d["hourly"]["wind_gusts_10m"]
+        CC = d["hourly"]["cloud_cover"]
         today_idx = [i for i,x in enumerate(t) if x.startswith(daily["time"][0])]
         avg = lambda arr: float(np.mean([arr[i] for i in today_idx]))
         rain_today = float(daily["precipitation_sum"][0] or 0)
@@ -438,9 +440,9 @@ def fetch_weather(city: str):
             "Temp9am":       float(T[H_(9)]),
             "Temp3pm":       float(T[H_(15)]),
             "RainToday":     1 if rain_today > 1.0 else 0,
-        }
-    except Exception:
-        return None
+        }, None
+    except Exception as e:
+        return None, str(e)
 
 # ── Modelos ───────────────────────────────────────────────────────────────────
 MODELS_PATH = os.path.join(os.path.dirname(__file__), "..", "models")
@@ -680,7 +682,7 @@ if "reales" in mode:
 
         with col_data:
             with st.spinner(f"Consultando Open-Meteo para {selected}…"):
-                api_data = fetch_weather(selected)
+                api_data, api_err = fetch_weather(selected)
 
             if api_data:
                 st.markdown(f"""
@@ -713,7 +715,11 @@ if "reales" in mode:
 """, unsafe_allow_html=True)
                 inputs = {k: v for k, v in api_data.items() if not k.startswith("_")}
             else:
-                st.warning("No se pudo conectar con Open-Meteo. Cambia a modo manual.")
+                st.warning(f"No se pudo obtener datos de Open-Meteo. Usando valores típicos de {selected} para la predicción.")
+                if api_err:
+                    st.caption(f"Detalle: {api_err}")
+                # Usar medianas del modelo como fallback para que la predicción funcione
+                inputs = {f: float(feature_ranges[f]["median"]) for f in feature_names}
 
 # ── MODO MANUAL ───────────────────────────────────────────────────────────────
 elif "manual" in mode:
