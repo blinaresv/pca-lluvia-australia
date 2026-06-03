@@ -689,6 +689,8 @@ if "reales" in mode:
             with st.spinner(f"Consultando Open-Meteo para {selected}…"):
                 api_data, api_err = fetch_weather(selected)
 
+            if api_err:
+                st.error(f"Error API: {api_err}")
             if api_data:
                 st.markdown(f"""
 <div class='weather-row' style='grid-template-columns:1fr 1fr;'>
