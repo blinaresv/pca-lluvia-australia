@@ -397,50 +397,61 @@ CITIES = {
 # ── Open-Meteo API ────────────────────────────────────────────────────────────
 @st.cache_data(ttl=3600, show_spinner=False)
 def fetch_weather(city: str):
-    """Lanza excepción en error para que st.cache_data no cachee el fallo."""
+    """Consulta wttr.in — sin rate limit, ideal para demos."""
     c = CITIES[city]
-    url = (
-        "https://api.open-meteo.com/v1/forecast"
-        f"?latitude={c['lat']}&longitude={c['lon']}"
-        "&daily=precipitation_sum,sunshine_duration,et0_fao_evapotranspiration"
-        "&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,wind_gusts_10m,cloud_cover"
-        "&timezone=auto&forecast_days=2&wind_speed_unit=kmh"
-    )
-    r = requests.get(url, timeout=10)
+    url = f"https://wttr.in/{c['lat']},{c['lon']}?format=j1"
+    r = requests.get(url, timeout=10, headers={"User-Agent": "RainCast-Australia/1.0"})
     r.raise_for_status()
     d = r.json()
-    if "hourly" not in d:
-        raise ValueError(f"Respuesta inesperada: {str(d)[:200]}")
-    t = d["hourly"]["time"]
-    daily = d["daily"]
-    H_ = lambda h: next((i for i,x in enumerate(t) if x.endswith(f"T{h:02d}:00")), 0)
-    T  = d["hourly"]["temperature_2m"]
-    Hm = d["hourly"]["relative_humidity_2m"]
-    P  = d["hourly"]["surface_pressure"]
-    W  = d["hourly"]["wind_speed_10m"]
-    WG = d["hourly"]["wind_gusts_10m"]
-    CC = d["hourly"]["cloud_cover"]
-    today_idx = [i for i,x in enumerate(t) if x.startswith(daily["time"][0])]
-    avg = lambda arr: float(np.mean([arr[i] for i in today_idx]))
-    rain_today = float(daily["precipitation_sum"][0] or 0)
+
+    cur  = d["current_condition"][0]
+    tod  = d["weather"][0]
+    hour = {h["time"]: h for h in tod.get("hourly", [])}
+
+    def hval(key, time_str, default=0.0):
+        h = hour.get(time_str, {})
+        v = h.get(key, [{}])
+        return float(v[0].get("value", default)) if isinstance(v, list) else float(v or default)
+
+    temp9am  = hval("tempC",    "900",  float(cur["temp_C"]))
+    temp3pm  = hval("tempC",    "1500", float(cur["temp_C"]))
+    hum9am   = hval("humidity", "900",  float(cur["humidity"]))
+    hum3pm   = hval("humidity", "1500", float(cur["humidity"]))
+    pres9am  = hval("pressure", "900",  float(cur["pressure"]))
+    pres3pm  = hval("pressure", "1500", float(cur["pressure"]))
+    wind9am  = hval("windspeedKmph", "900",  float(cur["windspeedKmph"]))
+    wind3pm  = hval("windspeedKmph", "1500", float(cur["windspeedKmph"]))
+    cloud9am = hval("cloudcover",    "900",  float(cur["cloudcover"]))
+    cloud3pm = hval("cloudcover",    "1500", float(cur["cloudcover"]))
+
+    rain_mm    = float(tod.get("hourly", [{}])[0].get("precipMM", [{"value":0}])[0].get("value", 0) or 0)
+    max_temp   = float(tod.get("maxtempC", cur["temp_C"]))
+    min_temp   = float(tod.get("mintempC", cur["temp_C"]))
+    wind_gust  = float(cur.get("windspeedKmph", 0)) * 1.3
+    rain_today = 1 if rain_mm > 1.0 else 0
+
     return {
-        "MinTemp":       float(min(T[i] for i in today_idx)),
-        "MaxTemp":       float(max(T[i] for i in today_idx)),
-        "Rainfall":      rain_today,
-        "Evaporation":   float(daily["et0_fao_evapotranspiration"][0] or 4.0),
-        "Sunshine":      float((daily["sunshine_duration"][0] or 0)/3600),
-        "WindGustSpeed": avg(WG),
-        "WindSpeed9am":  float(W[H_(9)]),
-        "WindSpeed3pm":  float(W[H_(15)]),
-        "Humidity9am":   float(Hm[H_(9)]),
-        "Humidity3pm":   float(Hm[H_(15)]),
-        "Pressure9am":   float(P[H_(9)]),
-        "Pressure3pm":   float(P[H_(15)]),
-        "Cloud9am":      round(float(CC[H_(9)])/12.5),
-        "Cloud3pm":      round(float(CC[H_(15)])/12.5),
-        "Temp9am":       float(T[H_(9)]),
-        "Temp3pm":       float(T[H_(15)]),
-        "RainToday":     1 if rain_today > 1.0 else 0,
+        "MinTemp":       min_temp,
+        "MaxTemp":       max_temp,
+        "Rainfall":      rain_mm,
+        "Evaporation":   4.0,
+        "Sunshine":      max(0.0, (100 - float(cur["cloudcover"])) / 10),
+        "WindGustSpeed": wind_gust,
+        "WindSpeed9am":  wind9am,
+        "WindSpeed3pm":  wind3pm,
+        "Humidity9am":   hum9am,
+        "Humidity3pm":   hum3pm,
+        "Pressure9am":   pres9am,
+        "Pressure3pm":   pres3pm,
+        "Cloud9am":      round(cloud9am / 12.5),
+        "Cloud3pm":      round(cloud3pm / 12.5),
+        "Temp9am":       temp9am,
+        "Temp3pm":       temp3pm,
+        "RainToday":     rain_today,
+        "_temp9":        temp9am,
+        "_hum3":         hum3pm,
+        "_wind":         wind_gust,
+        "_rain":         rain_mm,
     }
 
 # ── Modelos ───────────────────────────────────────────────────────────────────
@@ -681,7 +692,7 @@ if "reales" in mode:
 
         with col_data:
             api_data = None
-            with st.spinner(f"Consultando Open-Meteo para {selected}…"):
+            with st.spinner(f"Consultando clima actual para {selected}…"):
                 try:
                     api_data = fetch_weather(selected)
                 except Exception:
