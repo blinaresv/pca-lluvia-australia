@@ -395,8 +395,9 @@ CITIES = {
 }
 
 # ── Open-Meteo API ────────────────────────────────────────────────────────────
-@st.cache_data(ttl=1800, show_spinner=False)
+@st.cache_data(ttl=7200, show_spinner=False)
 def fetch_weather(city: str):
+    import time
     c = CITIES[city]
     url = (
         "https://api.open-meteo.com/v1/forecast"
@@ -406,7 +407,11 @@ def fetch_weather(city: str):
         "&timezone=auto&forecast_days=2&wind_speed_unit=kmh"
     )
     try:
-        r = requests.get(url, timeout=15); r.raise_for_status()
+        r = requests.get(url, timeout=15)
+        if r.status_code == 429:
+            time.sleep(3)
+            r = requests.get(url, timeout=15)
+        r.raise_for_status()
         d = r.json()
         if "hourly" not in d:
             return None, f"Respuesta inesperada: {str(d)[:200]}"
