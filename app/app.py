@@ -7,7 +7,6 @@ import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 import streamlit as st
-import streamlit.components.v1 as components
 import joblib, requests
 import pandas as pd
 import numpy as np
@@ -554,8 +553,8 @@ L.circleMarker([{lat},{lon}], {{
 
 # ── SIDEBAR ───────────────────────────────────────────────────────────────────
 with st.sidebar:
-    # Ocultar botón colapso sidebar via components.html (ejecuta JS real)
-    components.html("""
+    # Ocultar botón colapso sidebar via st.html (JS)
+    st.html("""
 <script>
 (function() {
     function hideSidebarBtn() {
@@ -676,7 +675,7 @@ if "reales" in mode:
         col_data, col_map = st.columns([1.1, 1], gap="medium")
 
         with col_map:
-            components.html(render_map(selected, height=290), height=290)
+            st.html(render_map(selected, height=290))
 
         with col_data:
             with st.spinner(f"Consultando Open-Meteo para {selected}…"):
@@ -714,7 +713,7 @@ if "reales" in mode:
                 inputs = {k: v for k, v in api_data.items() if not k.startswith("_")}
             else:
                 st.warning("No se pudo conectar con Open-Meteo. Cambia a modo manual.")
-                components.html(render_map(selected, height=290), height=290)
+                st.html(render_map(selected, height=290))
 
 # ── MODO MANUAL ───────────────────────────────────────────────────────────────
 elif "manual" in mode:
