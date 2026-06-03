@@ -720,10 +720,7 @@ if "reales" in mode:
 """, unsafe_allow_html=True)
                 inputs = {k: v for k, v in api_data.items() if not k.startswith("_")}
             else:
-                st.warning(f"No se pudo obtener datos de Open-Meteo. Usando valores típicos de {selected} para la predicción.")
-                if api_err:
-                    st.caption(f"Detalle: {api_err}")
-                # Usar medianas del modelo como fallback para que la predicción funcione
+                st.info(f"Usando valores climatológicos típicos de {selected}. La predicción sigue disponible.")
                 inputs = {f: float(feature_ranges[f]["median"]) for f in feature_names}
 
 # ── MODO MANUAL ───────────────────────────────────────────────────────────────
