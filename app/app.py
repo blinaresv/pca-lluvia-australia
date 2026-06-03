@@ -714,7 +714,6 @@ if "reales" in mode:
                 inputs = {k: v for k, v in api_data.items() if not k.startswith("_")}
             else:
                 st.warning("No se pudo conectar con Open-Meteo. Cambia a modo manual.")
-                components.html(render_map(selected, height=290), height=290)
 
 # ── MODO MANUAL ───────────────────────────────────────────────────────────────
 elif "manual" in mode:
@@ -755,7 +754,7 @@ predict_btn = st.button("Predecir si lloverá mañana", type="primary", use_cont
 
 if predict_btn and inputs:
     row   = pd.DataFrame([inputs], columns=feature_names)
-    Xs    = scaler.transform(row)
+    Xs    = scaler.transform(row.values)
     Xp    = pca.transform(Xs)
     pred  = int(classifier.predict(Xp)[0])
     probs = classifier.predict_proba(Xp)[0]
@@ -808,7 +807,7 @@ if predict_btn and inputs:
         ax.yaxis.grid(True, color="#E0E0E0", linewidth=0.6)
         ax.set_axisbelow(True)
         plt.tight_layout()
-        st.pyplot(fig, use_container_width=True)
+        st.pyplot(fig, width='stretch')
         plt.close()
 
     tab_dim, tab_pesos = st.tabs(["Reducción dimensional", "Peso de variables"])
