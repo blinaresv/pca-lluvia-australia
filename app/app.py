@@ -424,7 +424,7 @@ def fetch_weather(city: str):
     cloud9am = hval("cloudcover",    "900",  float(cur["cloudcover"]))
     cloud3pm = hval("cloudcover",    "1500", float(cur["cloudcover"]))
 
-    rain_mm    = float(tod.get("hourly", [{}])[0].get("precipMM", [{"value":0}])[0].get("value", 0) or 0)
+    rain_mm    = float(tod.get("hourly", [{}])[0].get("precipMM", 0) or 0)
     max_temp   = float(tod.get("maxtempC", cur["temp_C"]))
     min_temp   = float(tod.get("mintempC", cur["temp_C"]))
     wind_gust  = float(cur.get("windspeedKmph", 0)) * 1.3
