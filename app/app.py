@@ -397,7 +397,7 @@ CITIES = {
 # ── Open-Meteo API ────────────────────────────────────────────────────────────
 @st.cache_data(ttl=3600, show_spinner=False)
 def fetch_weather(city: str):
-    import time
+    """Lanza excepción en error para que st.cache_data no cachee el fallo."""
     c = CITIES[city]
     url = (
         "https://api.open-meteo.com/v1/forecast"
@@ -406,48 +406,42 @@ def fetch_weather(city: str):
         "&hourly=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,wind_gusts_10m,cloud_cover"
         "&timezone=auto&forecast_days=2&wind_speed_unit=kmh"
     )
-    try:
-        r = requests.get(url, timeout=15)
-        if r.status_code == 429:
-            time.sleep(30)
-            r = requests.get(url, timeout=15)
-        r.raise_for_status()
-        d = r.json()
-        if "hourly" not in d:
-            return None, f"Respuesta inesperada: {str(d)[:200]}"
-        t = d["hourly"]["time"]
-        daily = d["daily"]
-        H_ = lambda h: next((i for i,x in enumerate(t) if x.endswith(f"T{h:02d}:00")), 0)
-        T  = d["hourly"]["temperature_2m"]
-        Hm = d["hourly"]["relative_humidity_2m"]
-        P  = d["hourly"]["surface_pressure"]
-        W  = d["hourly"]["wind_speed_10m"]
-        WG = d["hourly"]["wind_gusts_10m"]
-        CC = d["hourly"]["cloud_cover"]
-        today_idx = [i for i,x in enumerate(t) if x.startswith(daily["time"][0])]
-        avg = lambda arr: float(np.mean([arr[i] for i in today_idx]))
-        rain_today = float(daily["precipitation_sum"][0] or 0)
-        return {
-            "MinTemp":       float(min(T[i] for i in today_idx)),
-            "MaxTemp":       float(max(T[i] for i in today_idx)),
-            "Rainfall":      rain_today,
-            "Evaporation":   float(daily["et0_fao_evapotranspiration"][0] or 4.0),
-            "Sunshine":      float((daily["sunshine_duration"][0] or 0)/3600),
-            "WindGustSpeed": avg(WG),
-            "WindSpeed9am":  float(W[H_(9)]),
-            "WindSpeed3pm":  float(W[H_(15)]),
-            "Humidity9am":   float(Hm[H_(9)]),
-            "Humidity3pm":   float(Hm[H_(15)]),
-            "Pressure9am":   float(P[H_(9)]),
-            "Pressure3pm":   float(P[H_(15)]),
-            "Cloud9am":      round(float(CC[H_(9)])/12.5),
-            "Cloud3pm":      round(float(CC[H_(15)])/12.5),
-            "Temp9am":       float(T[H_(9)]),
-            "Temp3pm":       float(T[H_(15)]),
-            "RainToday":     1 if rain_today > 1.0 else 0,
-        }, None
-    except Exception as e:
-        return None, str(e)
+    r = requests.get(url, timeout=10)
+    r.raise_for_status()
+    d = r.json()
+    if "hourly" not in d:
+        raise ValueError(f"Respuesta inesperada: {str(d)[:200]}")
+    t = d["hourly"]["time"]
+    daily = d["daily"]
+    H_ = lambda h: next((i for i,x in enumerate(t) if x.endswith(f"T{h:02d}:00")), 0)
+    T  = d["hourly"]["temperature_2m"]
+    Hm = d["hourly"]["relative_humidity_2m"]
+    P  = d["hourly"]["surface_pressure"]
+    W  = d["hourly"]["wind_speed_10m"]
+    WG = d["hourly"]["wind_gusts_10m"]
+    CC = d["hourly"]["cloud_cover"]
+    today_idx = [i for i,x in enumerate(t) if x.startswith(daily["time"][0])]
+    avg = lambda arr: float(np.mean([arr[i] for i in today_idx]))
+    rain_today = float(daily["precipitation_sum"][0] or 0)
+    return {
+        "MinTemp":       float(min(T[i] for i in today_idx)),
+        "MaxTemp":       float(max(T[i] for i in today_idx)),
+        "Rainfall":      rain_today,
+        "Evaporation":   float(daily["et0_fao_evapotranspiration"][0] or 4.0),
+        "Sunshine":      float((daily["sunshine_duration"][0] or 0)/3600),
+        "WindGustSpeed": avg(WG),
+        "WindSpeed9am":  float(W[H_(9)]),
+        "WindSpeed3pm":  float(W[H_(15)]),
+        "Humidity9am":   float(Hm[H_(9)]),
+        "Humidity3pm":   float(Hm[H_(15)]),
+        "Pressure9am":   float(P[H_(9)]),
+        "Pressure3pm":   float(P[H_(15)]),
+        "Cloud9am":      round(float(CC[H_(9)])/12.5),
+        "Cloud3pm":      round(float(CC[H_(15)])/12.5),
+        "Temp9am":       float(T[H_(9)]),
+        "Temp3pm":       float(T[H_(15)]),
+        "RainToday":     1 if rain_today > 1.0 else 0,
+    }
 
 # ── Modelos ───────────────────────────────────────────────────────────────────
 MODELS_PATH = os.path.join(os.path.dirname(__file__), "..", "models")
@@ -686,8 +680,12 @@ if "reales" in mode:
             components.html(render_map(selected, height=290), height=290)
 
         with col_data:
+            api_data = None
             with st.spinner(f"Consultando Open-Meteo para {selected}…"):
-                api_data, api_err = fetch_weather(selected)
+                try:
+                    api_data = fetch_weather(selected)
+                except Exception:
+                    pass
 
             if api_data:
                 st.markdown(f"""
