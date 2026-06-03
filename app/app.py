@@ -771,7 +771,7 @@ predict_btn = st.button("Predecir si lloverá mañana", type="primary", use_cont
 
 if predict_btn and inputs:
     row   = pd.DataFrame([inputs], columns=feature_names)
-    Xs    = scaler.transform(row.values)
+    Xs    = scaler.transform(row)
     Xp    = pca.transform(Xs)
     pred  = int(classifier.predict(Xp)[0])
     probs = classifier.predict_proba(Xp)[0]
