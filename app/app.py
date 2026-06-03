@@ -686,6 +686,8 @@ if "reales" in mode:
             components.html(render_map(selected, height=290), height=290)
 
         with col_data:
+            if st.button("🔄 Actualizar datos", key="retry_api"):
+                fetch_weather.clear()
             with st.spinner(f"Consultando Open-Meteo para {selected}…"):
                 api_data, api_err = fetch_weather(selected)
 
