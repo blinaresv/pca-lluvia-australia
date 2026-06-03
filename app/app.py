@@ -580,7 +580,7 @@ with st.sidebar:
         .observe(parent.document.body, {childList:true, subtree:true});
 })();
 </script>
-""", height=0)
+""")
     st.markdown("""
 <div style='padding:1rem 0 0.2rem'>
   <div style='font-size:20px;font-weight:800;color:#FFFFFF;letter-spacing:-0.02em'>RainCast</div>
