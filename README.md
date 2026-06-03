@@ -128,6 +128,52 @@ El Recall alto es la métrica más importante: un falso negativo (predecir sol c
 
 ---
 
+## Visualizaciones del análisis
+
+### ¿Cuántos días llueve realmente en Australia?
+
+![Distribución de clases](data/processed/class_distribution.png)
+
+De los más de 140 000 días registrados, **solo 1 de cada 4 terminó siendo lluvioso**. Eso significa que el modelo tiene muchos más ejemplos de días secos que de días con lluvia para aprender. Si no se corrige este desbalance, el modelo simplemente diría "no va a llover" casi siempre y acertaría el 77% de las veces sin aprender nada útil. Por eso se aplica un ajuste interno que obliga al modelo a prestar igual atención a los días lluviosos, aunque sean minoría.
+
+---
+
+### ¿Cuántas variables necesita el modelo realmente?
+
+![Comparación de hiperparámetros](data/processed/hyperparameter_comparison.png)
+
+Esta gráfica muestra qué tan bien predice el modelo según la cantidad de variables que usa después de aplicar PCA. Con solo 2 o 4 variables resumidas el modelo ya funciona razonablemente, pero a partir de 11 variables el rendimiento se estabiliza y no mejora aunque se agreguen más. Usar 11 en lugar de las 17 originales significa **menos datos para procesar con prácticamente los mismos resultados**. La línea punteada señala la configuración que se eligió para este proyecto.
+
+---
+
+### ¿Cuánta información se pierde al resumir las variables?
+
+![Varianza PCA](data/processed/pca_variance.png)
+
+PCA convierte las 17 variables originales en versiones resumidas llamadas componentes. La gráfica de la izquierda muestra que los primeros componentes capturan la mayor parte de la información y los siguientes aportan cada vez menos. La gráfica de la derecha confirma que con **solo 11 componentes se conserva el 95% de toda la información del dataset**. Es como comprimir una imagen: se reduce el tamaño pero la imagen sigue siendo reconocible y útil.
+
+---
+
+### ¿Qué hay detrás de cada componente resumido?
+
+![Loadings PCA](data/processed/pca_loadings.png)
+
+Cuando PCA resume las variables, cada componente nuevo es una mezcla de las variables originales. Esta tabla muestra qué tanto pesa cada variable en cada componente: los colores rojos indican que esa variable sube cuando sube el componente, los azules que va en sentido contrario, y el blanco que casi no influye. Por ejemplo, el primer componente (PC1) está dominado por las temperaturas del día, así que se puede interpretar como un resumen del "calor del día". Esto ayuda a entender qué información está usando el modelo para predecir.
+
+---
+
+### ¿Qué tan bien predice el modelo?
+
+![Evaluación del modelo](data/processed/model_evaluation.png)
+
+Tres formas de ver el rendimiento del modelo sobre datos que nunca había visto:
+
+- **Izquierda — Aciertos y errores:** de los días que sí llovió, el modelo detectó correctamente 4 862 y se equivocó en 1 513. De los días que no llovió, acertó en 17 027 y tuvo 5 037 falsas alarmas. En clima es preferible avisar de más que no avisar cuando sí va a llover.
+- **Centro — Curva ROC:** muestra qué tan bien distingue el modelo un día lluvioso de uno seco. Cuanto más se acerca la curva al rincón superior izquierdo, mejor. Un valor de **0.849** indica una muy buena capacidad de discriminación.
+- **Derecha — Resumen de métricas:** el modelo acierta el 77% de los días en general y detecta **3 de cada 4 días lluviosos reales**, que es la cifra más importante para una herramienta de alerta meteorológica.
+
+---
+
 ## Limitaciones del predictor
 
 1. Solo predicción binaria (sí/no): no estima cantidad ni intensidad de lluvia.
