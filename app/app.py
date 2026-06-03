@@ -395,7 +395,7 @@ CITIES = {
 }
 
 # ── Open-Meteo API ────────────────────────────────────────────────────────────
-@st.cache_data(ttl=7200, show_spinner=False)
+@st.cache_data(ttl=300, show_spinner=False)
 def fetch_weather(city: str):
     import time
     c = CITIES[city]
@@ -686,8 +686,6 @@ if "reales" in mode:
             components.html(render_map(selected, height=290), height=290)
 
         with col_data:
-            if st.button("🔄 Actualizar datos", key="retry_api"):
-                fetch_weather.clear()
             with st.spinner(f"Consultando Open-Meteo para {selected}…"):
                 api_data, api_err = fetch_weather(selected)
 
