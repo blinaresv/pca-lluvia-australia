@@ -395,7 +395,7 @@ CITIES = {
 }
 
 # ── Open-Meteo API ────────────────────────────────────────────────────────────
-@st.cache_data(ttl=300, show_spinner=False)
+@st.cache_data(ttl=3600, show_spinner=False)
 def fetch_weather(city: str):
     import time
     c = CITIES[city]
@@ -409,7 +409,7 @@ def fetch_weather(city: str):
     try:
         r = requests.get(url, timeout=15)
         if r.status_code == 429:
-            time.sleep(3)
+            time.sleep(30)
             r = requests.get(url, timeout=15)
         r.raise_for_status()
         d = r.json()
@@ -689,8 +689,6 @@ if "reales" in mode:
             with st.spinner(f"Consultando Open-Meteo para {selected}…"):
                 api_data, api_err = fetch_weather(selected)
 
-            if api_err:
-                st.error(f"Error API: {api_err}")
             if api_data:
                 st.markdown(f"""
 <div class='weather-row' style='grid-template-columns:1fr 1fr;'>
